@@ -1,0 +1,173 @@
+body {
+  font-family: 'Helvetica Neue', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+#panels {
+  background: #fff;
+  padding: 25px;
+  /* width: 800px; */
+  width: 80vw;
+  height: 70vh;
+  border-radius: 8px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+h1, h2 {
+  color: #333;
+}
+h1 {
+  margin-bottom: 10px;
+}
+h2 {
+  margin: 20px 0 10px;
+}
+textarea {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-top: 5px;
+  padding: 12px;
+  box-sizing: border-box;
+  resize: vertical;
+}
+#runButton {
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin-top: 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+}
+#runButton:hover {
+  background-color: #45a049;
+}
+#terminal {
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 4px;
+  /* max-height: 200px; */
+  overflow-y: auto;
+}
+
+.prompt {
+  color: blue;
+}
+
+.input {
+  color: black;
+}
+
+#definitionsArea,
+#terminal {
+  margin-top: 0;
+  overflow-y: auto;  /* Adds scrolling */
+  /* height: 200px; */ /* Sets the initial height */
+  height: 65vh;
+  box-sizing: border-box;
+  font-family: monospace, monospace;
+  white-space: pre;
+  overflow-x: hidden;
+}
+
+#replInput {
+  border: none;              /* Remove border */
+  outline: none;              /* Remove outline */
+  background: transparent;    /* Make background transparent */
+  width: 100%;                /* Take full width */
+  font-size: inherit;         /* Use the same font size as parent */
+  font-family: inherit;       /* Use the same font family as parent */
+  color: inherit;             /* Use the same text color as parent */
+  padding: 0;                 /* Remove padding */
+  margin: 0;                  /* Remove margin */
+  overflow-x: auto;
+  /* width: 100%;
+  font-family: monospace, monospace; */
+}
+
+#panels {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;  /* Makes sure the tops are aligned */
+}
+
+#definitionsPanel,
+#replPanel {
+  flex-basis: 48%;
+}
+
+h2 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.panelHeader {
+  text-align: center;
+}
+
+.toolHeader {
+  text-align: center;
+}
+
+
+.prompt {
+  color: blue;
+}
+
+.input {
+  color: black;
+}
+
+
+#instructionsPanel {
+  flex-basis: 100%;
+  margin-top: 20px; /* Spacing from the above panels */
+  width: 100%;                /* Take full width */
+  height: 65vh;
+  box-sizing: border-box;
+  margin-top: 0;
+}
+
+.instructionsContent {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  overflow-y: auto;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#definitionsPanel,
+#replPanel,
+#instructionsPanel {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+table {
+    border-collapse: collapse;
+    width: 60%;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+}
+th, td {
+    text-align: left;
+    padding: 8px;
+}
+th {
+    background-color: #4CAF50;
+    color: white;
+}
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.monospace {
+  font-family: monospace;
+}
+
