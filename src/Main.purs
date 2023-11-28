@@ -243,7 +243,7 @@ runInput input =
       case runEval (normalizeWithDefs st.defs term) of
           Left err -> updateTerminal err
           Right (Tuple stdout r) -> do
-            updateTerminal stdout
+            traverse_ updateTerminal stdout
             updateTerminal $ showTerm r
 
 

@@ -21,7 +21,7 @@ data EvalError = TooManySteps | UnknownName String
 
 type StepCounter m = StateT Int m
 
-type StdoutWriter = WriterT String
+type StdoutWriter = WriterT (List String)
 
 maxSteps :: Int
 maxSteps = 10000
@@ -43,7 +43,7 @@ type Abstraction =
   , fn :: Value -> Eval Value
   }
 
-runEval :: forall a. Eval a -> Either String (Tuple String a)
+runEval :: forall a. Eval a -> Either String (Tuple (List String) a)
 runEval m =
   case runWriterT $ flip runStateT 0 m of
     Left TooManySteps -> Left $ "Too many steps"
@@ -76,7 +76,7 @@ eval' env (App a b) = do
        case n of
          NPrint -> do
             vT <- reify env vB
-            tell $ showTerm vT
+            tell $ singleton (showTerm vT)
          _ -> pure unit
 
        pure $ VNeutral $ NApp n vB
