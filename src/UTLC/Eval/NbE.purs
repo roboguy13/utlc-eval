@@ -72,6 +72,13 @@ eval' env (App a b) = do
   case vA of
     VNeutral n -> do
        vB <- eval env b
+
+       case n of
+         NPrint -> do
+            vT <- reify env vB
+            tell $ showTerm vT
+         _ -> pure unit
+
        pure $ VNeutral $ NApp n vB
 
     VLam abstr ->
@@ -83,7 +90,8 @@ eval' env (Lam x body) = do
     , fn: \v -> eval (extend env x v) body
     }
 
-eval' _env Print = pure $ VNeutral NPrint
+eval' _env Print =
+  pure $ VNeutral NPrint
 
 reify :: Env -> Value -> Eval NamedTerm
 reify env (VLam abstr) = do
