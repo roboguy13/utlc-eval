@@ -50,6 +50,11 @@ runEval m =
     Left (UnknownName x) -> Left $ "Unknown name " <> x
     Right (Tuple (Tuple r _) stdout) -> Right (Tuple stdout r)
 
+normalizeWithDefs :: List NamedDef -> NamedTerm -> Eval NamedTerm
+normalizeWithDefs defs term = do
+  env <- extendWithDefs mempty defs
+  normalize env term
+
 normalize :: Env -> NamedTerm -> Eval NamedTerm
 normalize env = reify env <=< eval env
 
@@ -100,6 +105,16 @@ step = do
     else modify_ (_ + 1)
 
 type Env = List (Tuple String Value)
+
+-- NOTE: Recursion is not supported. Can be implemented indirectly inside the language using a fixpoint combinator
+extendWithDef :: Env -> NamedDef -> Eval Env
+extendWithDef env (Def d) = extend env d.name <$> eval env d.body
+
+extendWithDefs :: Env -> List NamedDef -> Eval Env
+extendWithDefs env Nil = pure env
+extendWithDefs env (Cons d ds) = do
+  env' <- extendWithDef env d
+  extendWithDefs env' ds
 
 extend :: Env -> String -> Value -> Env
 extend env name val = Cons (Tuple name val) env

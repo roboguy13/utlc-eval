@@ -43,12 +43,12 @@ main = HA.runHalogenAff do
   body <- HA.awaitBody
   runUI replComponent unit body
 
-type ReplState = { input :: String, history :: Array String, message :: String }
+type ReplState = { input :: String, defsString :: String, defs :: List NamedDef, history :: Array String, message :: String }
 
-data Action = Nop | Focus | UpdateInput String | ExecuteCommand
+data Action = Nop | Focus | UpdateInput String | UpdateDefString String | ReloadDefs | ExecuteCommand
 
 initialState :: ReplState
-initialState = { input: "", history: [], message: "" }
+initialState = { input: "", history: [], message: "", defsString: "", defs: Nil }
 
 replComponent :: forall query input output m. MonadAff m => H.Component query input output m
 replComponent = H.mkComponent
@@ -62,6 +62,9 @@ replInputRef = H.RefLabel "replInput"
 
 terminalRef :: H.RefLabel
 terminalRef = H.RefLabel "terminalRef"
+
+defsRef :: H.RefLabel
+defsRef = H.RefLabel "defsRef"
 
 prompt :: String
 prompt = ">> "
@@ -77,8 +80,10 @@ render st =
                   [ HH.text "Definitions" ]
           , HH.textarea
               [ HP.id "definitionsArea"
+              , HP.ref defsRef
               , HP.rows 10
               , HP.placeholder "Type your definitions here"
+              , HE.onValueInput UpdateDefString
               ]
           ]
 
@@ -114,6 +119,11 @@ render st =
                     instructions
                 ]
         ]
+
+        , HH.button
+            [ HE.onClick \_ -> ReloadDefs
+            ]
+            [ HH.text "Reload" ]
     ]
 
 historyToHtml :: forall w i. ReplState -> Array (HTML w i)
@@ -146,12 +156,22 @@ handleAction = case _ of
   Focus -> refocus
   UpdateInput str -> do
     H.modify_ \st -> st { input = str }
+  UpdateDefString str ->
+    H.modify_ \st -> st { defsString = str }
+  ReloadDefs -> do
+    st <- H.get
+    case runParser st.defsString (many parseDef <* eof) of
+      Left err -> do
+        updateTerminal $ "Parse error: " <> show err
+        updateTerminal $ "In: " <> show st.defsString
+      Right defs ->
+        H.modify_ \st -> st { defs = defs }
   ExecuteCommand  -> do
     st <- H.get
     H.liftEffect $ log $ "history = " <> show st.history
     H.modify_ \st -> st { history = st.history <> [prompt <> st.input] }
 
-    runInput $ st.input
+    runInput st.input
 
     refocus
     -- -- Evaluate st.input and get the output, here assumed to be st.input for simplicity.
@@ -207,8 +227,8 @@ instructions =
     ]
   , HH.br_
   , HH.ul_
-      [ HH.li_ [ HH.text "Press the 'Reload' button to reload the definitions for use in the REPL." ]
-      , HH.li_ [ HH.text $ "Each expression entered into the REPL is evaluated into a normal form and then this is printed. If it is not in a normal form after " <> show maxSteps <> " evaluation steps, evaluation is terminated with an error" ]
+      -- [ HH.li_ [ HH.text "Press the 'Reload' button to reload the definitions for use in the REPL." ]
+      [ HH.li_ [ HH.text $ "Each expression entered into the REPL is evaluated into a normal form and then this is printed. If it is not in a normal form after " <> show maxSteps <> " evaluation steps, evaluation is terminated with an error" ]
       , HH.li_ [ HH.text "Note that the ", printWord, HH.text " function prints its argument to standard output (after normalizing it) whenever an application of ", printWord, HH.text " to an argument is evaluated." ]
       ]
   ]
@@ -217,8 +237,10 @@ runInput :: forall o m. MonadAff m => String -> H.HalogenM ReplState Action () o
 runInput input =
   case runParser input (parseTerm <* eof) of
     Left err -> updateTerminal $ "Parse error: " <> show err
-    Right term ->
-      case runEval (normalize mempty term) of
+    Right term -> do
+      st <- H.get
+      -- case runParser 
+      case runEval (normalizeWithDefs st.defs term) of
           Left err -> updateTerminal err
           Right (Tuple stdout r) -> do
             updateTerminal stdout

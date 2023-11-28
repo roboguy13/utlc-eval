@@ -84,6 +84,7 @@ parseApp = lexeme $ defer \_ -> do
 parseDef :: Parser NamedDef
 parseDef = lexeme do
   name <- identifier
+  _ <- symbol ":="
   body <- parseTerm
   pure $ Def { name: name, body: body }
 
