@@ -10,6 +10,8 @@ import Parsing.Language
 import Parsing.Combinators
 import Parsing.Expr
 
+import Data.Array
+
 import Control.Lazy
 
 data Term a
@@ -30,12 +32,17 @@ type NamedDef = Def String
 showTerm :: NamedTerm -> String
 showTerm (Var x) = x
 showTerm (Lam x body) = "\\" <> x <> ". " <> showTerm body
-showTerm (App a b) = showParens a <> " " <> showTerm b
+showTerm (App a b) = showFn a <> " " <> showParens b
   where
     showParens e =
       if isNested e
-        then "(" <> showTerm e <> ")"
+        then parens $ showTerm e
         else showTerm e
+
+    showFn e@(Lam _ _) = parens (showTerm e)
+    showFn e = showTerm e
+
+    parens s = "(" <> s <> ")"
 
     isNested (Var _) = false
     isNested (Lam _ _) = true
@@ -78,8 +85,8 @@ parseVar = lexeme $ Var <$> identifier
 parseApp :: Parser NamedTerm
 parseApp = lexeme $ defer \_ -> do
   f <- parseTerm'
-  arg <- parseTerm'
-  pure $ App f arg
+  args <- some parseTerm'
+  pure $ foldl App f args
 
 parseDef :: Parser NamedDef
 parseDef = lexeme do

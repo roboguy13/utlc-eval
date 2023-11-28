@@ -2188,6 +2188,7 @@
       throw new Error("Failed pattern match at Data.Array (line 623, column 21 - line 633, column 17): " + [v.constructor.name]);
     };
   };
+  var foldl2 = /* @__PURE__ */ foldl(foldableArray);
   var findIndex = /* @__PURE__ */ function() {
     return runFn4(findIndexImpl)(Just.create)(Nothing.value);
   }();
@@ -6588,7 +6589,7 @@
   var foldr3 = function(k) {
     return function(b2) {
       return function(q2) {
-        var foldl3 = function($copy_v) {
+        var foldl4 = function($copy_v) {
           return function($copy_v1) {
             return function($copy_v2) {
               var $tco_var_v = $copy_v;
@@ -6628,7 +6629,7 @@
               var v = uncons4(xs);
               if (v instanceof Nothing) {
                 $tco_done1 = true;
-                return foldl3(function(x) {
+                return foldl4(function(x) {
                   return function(i2) {
                     return i2(x);
                   };
@@ -30923,7 +30924,7 @@
   var many3 = /* @__PURE__ */ many(alternativeParserT)(lazyParserT);
   var map110 = /* @__PURE__ */ map(functorMaybe);
   var some3 = /* @__PURE__ */ some(alternativeParserT)(lazyParserT);
-  var foldl2 = /* @__PURE__ */ foldl(foldableArray);
+  var foldl3 = /* @__PURE__ */ foldl(foldableArray);
   var applyFirst3 = /* @__PURE__ */ applyFirst(applyParserT);
   var show3 = /* @__PURE__ */ show(showString);
   var bind15 = /* @__PURE__ */ bind(bindMaybe);
@@ -31088,7 +31089,7 @@
           };
         };
         return bind7(some3(baseDigit))(function(digits) {
-          return maybe(fail2("not digits"))(pure10)(foldl2(folder)(new Just(0))(digits));
+          return maybe(fail2("not digits"))(pure10)(foldl3(folder)(new Just(0))(digits));
         });
       };
     };
@@ -31467,6 +31468,7 @@
   var applySecond4 = /* @__PURE__ */ applySecond(applyParserT);
   var bind8 = /* @__PURE__ */ bind(bindParserT);
   var pure11 = /* @__PURE__ */ pure(applicativeParserT);
+  var some4 = /* @__PURE__ */ some(alternativeParserT)(lazyParserT);
   var Var = /* @__PURE__ */ function() {
     function Var2(value0) {
       this.value0 = value0;
@@ -31530,6 +31532,16 @@
     }
     ;
     if (v instanceof App2) {
+      var parens = function(s) {
+        return "(" + (s + ")");
+      };
+      var showFn = function(v1) {
+        if (v1 instanceof Lam) {
+          return parens(showTerm(v1));
+        }
+        ;
+        return showTerm(v1);
+      };
       var isNested = function(v1) {
         if (v1 instanceof Var) {
           return false;
@@ -31547,24 +31559,24 @@
           return false;
         }
         ;
-        throw new Error("Failed pattern match at UTLC.Syntax.Term (line 40, column 5 - line 40, column 29): " + [v1.constructor.name]);
+        throw new Error("Failed pattern match at UTLC.Syntax.Term (line 47, column 5 - line 47, column 29): " + [v1.constructor.name]);
       };
       var showParens = function(e) {
-        var $26 = isNested(e);
-        if ($26) {
-          return "(" + (showTerm(e) + ")");
+        var $32 = isNested(e);
+        if ($32) {
+          return parens(showTerm(e));
         }
         ;
         return showTerm(e);
       };
-      return showParens(v.value0) + (" " + showTerm(v.value1));
+      return showFn(v.value0) + (" " + showParens(v.value1));
     }
     ;
     if (v instanceof Print) {
       return "print";
     }
     ;
-    throw new Error("Failed pattern match at UTLC.Syntax.Term (line 30, column 1 - line 30, column 32): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at UTLC.Syntax.Term (line 32, column 1 - line 32, column 32): " + [v.constructor.name]);
   };
   var keywords = ["print"];
   var tokenParser = /* @__PURE__ */ makeTokenParser(/* @__PURE__ */ function() {
@@ -31603,9 +31615,9 @@
   }();
   var $lazy_parseApp = /* @__PURE__ */ $runtime_lazy13("parseApp", "UTLC.Syntax.Term", function() {
     return lexeme(defer5(function(v) {
-      return bind8($lazy_parseTerm$prime(80))(function(f) {
-        return bind8($lazy_parseTerm$prime(81))(function(arg) {
-          return pure11(new App2(f, arg));
+      return bind8($lazy_parseTerm$prime(87))(function(f) {
+        return bind8(some4($lazy_parseTerm$prime(88)))(function(args) {
+          return pure11(foldl2(App2.create)(f)(args));
         });
       });
     }));
@@ -31614,7 +31626,7 @@
     return lexeme(bind8(symbol("\\"))(function() {
       return bind8(identifier)(function(x) {
         return bind8(symbol("."))(function() {
-          return bind8($lazy_parseTerm(72))(function(body2) {
+          return bind8($lazy_parseTerm(79))(function(body2) {
             return pure11(new Lam(x, body2));
           });
         });
@@ -31623,15 +31635,15 @@
   });
   var $lazy_parseTerm = /* @__PURE__ */ $runtime_lazy13("parseTerm", "UTLC.Syntax.Term", function() {
     return defer5(function(v) {
-      return alt8($$try3($lazy_parseLam(60)))(alt8($$try3($lazy_parseApp(61)))($$try3($lazy_parseTerm$prime(62))));
+      return alt8($$try3($lazy_parseLam(67)))(alt8($$try3($lazy_parseApp(68)))($$try3($lazy_parseTerm$prime(69))));
     });
   });
   var $lazy_parseTerm$prime = /* @__PURE__ */ $runtime_lazy13("parseTerm'", "UTLC.Syntax.Term", function() {
     return defer5(function(v) {
-      return alt8($$try3(parsePrint))(alt8($$try3(parseVar))($$try3(applyFirst4(applySecond4(symbol("("))($lazy_parseTerm(56)))(symbol(")")))));
+      return alt8($$try3(parsePrint))(alt8($$try3(parseVar))($$try3(applyFirst4(applySecond4(symbol("("))($lazy_parseTerm(63)))(symbol(")")))));
     });
   });
-  var parseTerm = /* @__PURE__ */ $lazy_parseTerm(58);
+  var parseTerm = /* @__PURE__ */ $lazy_parseTerm(65);
   var parseDef = /* @__PURE__ */ lexeme(/* @__PURE__ */ bind8(identifier)(function(name15) {
     return bind8(symbol(":="))(function() {
       return bind8(parseTerm)(function(body2) {
