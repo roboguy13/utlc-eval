@@ -8,6 +8,9 @@ import Effect.Console
 
 import Data.Foldable
 
+import Parsing
+import Parsing.String (eof)
+
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.HTML as HH
@@ -30,7 +33,10 @@ import Data.Either
 import Data.String as String
 import Data.Array as Array
 
+import Data.Tuple
+
 import UTLC.Eval.NbE
+import UTLC.Syntax.Term
 
 main :: Effect Unit
 main = HA.runHalogenAff do
@@ -144,7 +150,9 @@ handleAction = case _ of
     st <- H.get
     H.liftEffect $ log $ "history = " <> show st.history
     H.modify_ \st -> st { history = st.history <> [prompt <> st.input] }
-    updateTerminal $ "input = " <> st.input
+
+    runInput $ st.input
+
     refocus
     -- -- Evaluate st.input and get the output, here assumed to be st.input for simplicity.
     -- let parserResult = runParser st.input (parseTerm <* eof)
@@ -204,6 +212,18 @@ instructions =
       , HH.li_ [ HH.text "Note that the ", printWord, HH.text " function prints its argument to standard output (after normalizing it) whenever an application of ", printWord, HH.text " to an argument is evaluated." ]
       ]
   ]
+
+runInput :: forall o m. MonadAff m => String -> H.HalogenM ReplState Action () o m Unit
+runInput input =
+  case runParser input (parseTerm <* eof) of
+    Left err -> updateTerminal $ "Parse error: " <> show err
+    Right term ->
+      case runEval (normalize mempty term) of
+          Left err -> updateTerminal err
+          Right (Tuple stdout r) -> do
+            updateTerminal stdout
+            updateTerminal $ showTerm r
+
 
 printWord :: forall w i. HTML w i
 printWord = HH.span [ HP.class_ (HH.ClassName "monospace") ] [ HH.text "print" ]

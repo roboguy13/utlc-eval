@@ -50,21 +50,22 @@ parseName :: Parser String
 parseName = lexeme identifier
 
 parseTerm' :: Parser NamedTerm
-parseTerm' =
+parseTerm' = defer \_ ->
   try parsePrint
   <|> try parseVar
+  <|> try (symbol "(" *> parseTerm <* symbol ")")
 
 parseTerm :: Parser NamedTerm
 parseTerm = defer \_ ->
-  parseTerm'
-  <|> try parseLam
+  try parseLam
   <|> try parseApp
+  <|> try parseTerm'
 
 parsePrint :: Parser NamedTerm
-parsePrint = keyword "print" $> Print
+parsePrint = lexeme $ keyword "print" $> Print
 
 parseLam :: Parser NamedTerm
-parseLam = do
+parseLam = lexeme do
   _ <- symbol "\\"
   x <- identifier
   _ <- symbol "."
@@ -72,16 +73,16 @@ parseLam = do
   pure $ Lam x body
 
 parseVar :: Parser NamedTerm
-parseVar = Var <$> identifier
+parseVar = lexeme $ Var <$> identifier
 
 parseApp :: Parser NamedTerm
-parseApp = defer \_ -> do
+parseApp = lexeme $ defer \_ -> do
   f <- parseTerm'
   arg <- parseTerm'
   pure $ App f arg
 
 parseDef :: Parser NamedDef
-parseDef = do
+parseDef = lexeme do
   name <- identifier
   body <- parseTerm
   pure $ Def { name: name, body: body }

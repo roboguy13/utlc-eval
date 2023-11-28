@@ -25,6 +25,8 @@ to generate this file without the comments in this block.
   , "parsing"
   , "prelude"
   , "strings"
+  , "transformers"
+  , "tuples"
   , "web-dom"
   , "web-html"
   , "web-uievents"
