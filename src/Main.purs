@@ -8,7 +8,8 @@ import Effect.Console
 
 import Data.Foldable
 
-import Parsing
+import Parsing hiding (Parser)
+import Parsing.Combinators (try, (<|>))
 import Parsing.String
 
 import Halogen as H
@@ -37,6 +38,8 @@ import Data.Tuple
 
 import UTLC.Eval.NbE
 import UTLC.Syntax.Term
+import UTLC.Utils (unlines)
+import UTLC.Backend.Python
 
 main :: Effect Unit
 main = HA.runHalogenAff do
@@ -46,6 +49,16 @@ main = HA.runHalogenAff do
 type ReplState = { input :: String, defsString :: String, defs :: List NamedDef, history :: Array String, message :: String }
 
 data Action = Nop | Focus | UpdateInput String | UpdateDefString String | ReloadDefs | ExecuteCommand
+
+data ReplCmd
+  = ReplTerm NamedTerm
+  | Compile NamedTerm
+
+parseReplCmd :: Parser ReplCmd
+parseReplCmd =
+  try (symbol ":" *> keyword "compile" *> map Compile parseTerm)
+  <|>
+  try (map ReplTerm parseTerm)
 
 initialState :: ReplState
 initialState = { input: "", history: [], message: "", defsString: defaultDefString, defs: Nil }
@@ -97,7 +110,6 @@ render st =
             [ HH.h2 [ HP.class_ (HH.ClassName "panelHeader") ]
                     [ HH.text "REPL" ]
             , HH.div [ HP.id "terminal", HP.ref terminalRef
-                     , HE.onClick (\_ -> Focus)
                      ]
                 (historyToHtml st
                 <>
@@ -114,6 +126,7 @@ render st =
                                , HE.onKeyDown mkAction
                                , HP.ref replInputRef
                                , HE.onValueInput updateInput
+                               , HE.onClick (\_ -> Focus)
                                ]
                     ]
                 ])
@@ -135,15 +148,6 @@ historyToHtml st =
 
 updateInput :: String -> Action
 updateInput x = UpdateInput x
-
-unlines :: Array String -> String
-unlines = foldr go ""
-  where
-    go :: String -> String -> String
-    go here rest =
-      if String.null rest
-      then here
-      else here <> "\n" <> rest
 
 mkAction :: KeyboardEvent -> Action
 mkAction ev =
@@ -229,6 +233,10 @@ instructions =
         [ HH.td_ [ HH.text "Comment" ]
         , HH.td_ [ HH.pre_ [ HH.text "-- This is a comment" ] ]
         ]
+    , HH.tr_
+        [ HH.td_ [ HH.text "Compile to Python (this is a REPL command)" ]
+        , HH.td_ [ HH.pre_ [ HH.text ":compile <term>" ] ]
+        ]
     ]
   , HH.br_
   , HH.h2_ [ HH.text "Examples" ]
@@ -262,9 +270,15 @@ instructions =
 
 runInput :: forall o m. MonadAff m => String -> H.HalogenM ReplState Action () o m Unit
 runInput input =
-  case runParser input (parseTerm <* eof) of
+  case runParser input (parseReplCmd <* eof) of
     Left err -> updateTerminal $ "Parse error: " <> show err
-    Right term -> do
+    Right (Compile term) -> do
+       st <- H.get
+
+       let pyCode = pythonPrelude <> "\n" <> toPython st.defs term
+
+       updateTerminal $ "# Python code:\n" <> pyCode
+    Right (ReplTerm term) -> do
       st <- H.get
       -- case runParser 
       case runEval (normalize mempty (fromNamed st.defs term)) of

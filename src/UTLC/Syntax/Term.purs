@@ -54,6 +54,10 @@ findDef (Cons (Def d) ds) x =
   then Just $ Def d
   else findDef ds x
 
+-- -- | Substitute in the definition bodies
+-- substInDefs :: List NamedDef -> NamedTerm -> NamedTerm
+-- substInDefs defs = toNamed <<< fromNamed defs
+
 defFromNamed :: List NamedDef -> NamedDef -> IxDef
 defFromNamed defs (Def def) = Def $ def { body = fromNamed defs def.body }
 
