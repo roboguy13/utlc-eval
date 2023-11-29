@@ -79,10 +79,21 @@ fromNamed defs = go emptyNamingCtx
     go _nCtx Print = Print
 
 toNamed :: IxTerm -> NamedTerm
-toNamed = map go
+toNamed = go mempty
   where
-    go (FV x) = x
-    go (BV ixName) = showIxName ixName
+    go :: List Name -> IxTerm -> NamedTerm
+    go _ctx (Var (FV x)) = Var x
+    go ctx (Var (BV ixName@(IxName n))) =
+      Var $
+      case lookupIx_maybe ctx n.ix of
+          Nothing -> showIxName ixName
+          Just name -> name
+    go ctx (Lam x0 body) =
+      let x = fresh x0 ctx
+      in
+      Lam x $ go (Cons x ctx) body
+    go ctx (App x y) = App (go ctx x) (go ctx y)
+    go _ctx Print = Print
 
 showTerm :: NamedTerm -> String
 showTerm (Var x) = x

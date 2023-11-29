@@ -83,9 +83,13 @@ lvlIx :: Int -> Lvl -> Ix
 lvlIx depth (Lvl lvl) = Ix $ depth - lvl - 1
 
 lookupIx :: forall a. List a -> Ix -> a
-lookupIx Nil (Ix i) = error $ "Cannot find binding for ix " <> show i
-lookupIx (Cons x _) (Ix 0) = x
-lookupIx (Cons _ xs) (Ix i) = lookupIx xs (Ix (i - 1))
+lookupIx xs i =
+  case lookupIx_maybe xs i of
+    Nothing -> error $ "Cannot find binding for ix " <> showIx i
+    Just n -> n
+
+lookupIx_maybe :: forall a. List a -> Ix -> Maybe a
+lookupIx_maybe xs (Ix i) = xs !! i
 
 newtype NamingCtx' a = NamingCtx (List (Tuple Name a))
 type NamingCtx = NamingCtx' Ix
@@ -128,8 +132,27 @@ nameToIx_maybe (NamingCtx nCtx) n =
     Nothing -> Nothing
 
 ixToName :: NamingCtx -> Ix -> Name
-ixToName (NamingCtx nCtx) i =
-  case find ((_ == i) <<< snd) nCtx of
-    Just (Tuple n _) -> n
+ixToName nCtx i =
+  case ixToName_maybe nCtx i of
+    Just n -> n
     Nothing -> error "ixToName"
+
+ixToName_maybe :: NamingCtx -> Ix -> Maybe Name
+ixToName_maybe (NamingCtx nCtx) i =
+  case find ((_ == i) <<< snd) nCtx of
+    Just (Tuple n _) -> Just n
+    Nothing -> Nothing
+
+fresh :: Name -> List Name -> Name
+fresh name ctx =
+  if name `elem` ctx
+  then go 0
+  else name
+  where
+    go uniq =
+      let newName = name <> show uniq
+      in
+      if newName `elem` ctx
+      then go (uniq + 1)
+      else newName
 

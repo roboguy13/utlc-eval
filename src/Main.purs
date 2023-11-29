@@ -75,12 +75,8 @@ render st =
     [ HH.h1 [ HP.class_ (HH.ClassName "toolHeader") ]
             [ HH.text "UTLC Evaluator" ]
     , HH.div [ HP.id "panels" ]
-        [ HH.button
-            [ HE.onClick \_ -> ReloadDefs
-            ]
-            [ HH.text "Reload" ]
-        , HH.br_
-        , HH.div [ HP.id "definitionsPanel" ]
+        -- , HH.br_
+        [ HH.div [ HP.id "definitionsPanel" ]
           [ HH.h2 [ HP.class_ (HH.ClassName "panelHeader") ]
                   [ HH.text "Definitions" ]
           , HH.textarea
@@ -90,6 +86,11 @@ render st =
               , HP.value defaultDefString
               , HE.onValueInput UpdateDefString
               ]
+          , HH.button
+            [ HE.onClick \_ -> ReloadDefs
+            , HP.id "reloadButton"
+            ]
+            [ HH.text "Reload" ]
           ]
 
         , HH.div [ HP.id "replPanel" ]
