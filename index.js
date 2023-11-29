@@ -32135,14 +32135,14 @@
       }
       ;
       if (v1 instanceof NPrint) {
-        return bind9(reifyNeutral(v)(v1.value0))(function(x$prime) {
-          return bind9(reify(v)(v1.value1))(function(y$prime) {
+        return bind9(reify(v)(v1.value0))(function(x$prime) {
+          return bind9(reifyNeutral(v)(v1.value1))(function(y$prime) {
             return pure14(new App2(new App2(Print.value, x$prime), y$prime));
           });
         });
       }
       ;
-      throw new Error("Failed pattern match at UTLC.Eval.NbE (line 150, column 1 - line 150, column 46): " + [v.constructor.name, v1.constructor.name]);
+      throw new Error("Failed pattern match at UTLC.Eval.NbE (line 151, column 1 - line 151, column 46): " + [v.constructor.name, v1.constructor.name]);
     };
   };
   var reify = function(v) {
@@ -32160,7 +32160,7 @@
         return reifyNeutral(v)(v1.value0);
       }
       ;
-      throw new Error("Failed pattern match at UTLC.Eval.NbE (line 141, column 1 - line 141, column 37): " + [v.constructor.name, v1.constructor.name]);
+      throw new Error("Failed pattern match at UTLC.Eval.NbE (line 142, column 1 - line 142, column 37): " + [v.constructor.name, v1.constructor.name]);
     };
   };
   var extend2 = function(env) {
@@ -32168,14 +32168,22 @@
       return new Cons(val, env);
     };
   };
-  var evalPrint = function(env) {
-    return function(val) {
-      return function(cont) {
-        return bind9(reify(mkLevel(env))(val))(function(valTerm) {
-          return discard5(tell3(singleton3(showTerm(toNamed(valTerm)))))(function() {
-            return pure14(cont);
+  var evalPrint = function(v) {
+    return function(v1) {
+      return function(v2) {
+        if (v2 instanceof VLam) {
+          return bind9(reify(mkLevel(v))(v1))(function(valTerm) {
+            return discard5(tell3(singleton3(showTerm(toNamed(valTerm)))))(function() {
+              return pure14(v2);
+            });
           });
-        });
+        }
+        ;
+        if (v2 instanceof VNeutral) {
+          return pure14(new VNeutral(new NPrint(v1, v2.value0)));
+        }
+        ;
+        throw new Error("Failed pattern match at UTLC.Eval.NbE (line 135, column 1 - line 135, column 49): " + [v.constructor.name, v1.constructor.name, v2.constructor.name]);
       };
     };
   };

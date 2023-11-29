@@ -47,7 +47,7 @@ data Value
 data Neutral
   = NVar LvlV
   | NApp Neutral Value
-  | NPrint Neutral Value
+  | NPrint Value Neutral
 
 type Abstraction =
   { argName :: String
@@ -133,10 +133,11 @@ eval' env Print = do
     }
 
 evalPrint :: Env -> Value -> Value -> Eval Value
-evalPrint env val cont = do
+evalPrint env val cont@(VLam _) = do
   valTerm <- reify (mkLevel env) val
   tell $ singleton $ showTerm $ toNamed valTerm
   pure cont
+evalPrint _env val (VNeutral n) = pure $ VNeutral $ NPrint val n
 
 reify :: Lvl -> Value -> Eval IxTerm
 reify depth (VLam abstr) = do
@@ -151,8 +152,10 @@ reifyNeutral :: Lvl -> Neutral -> Eval IxTerm
 reifyNeutral depth (NVar x) = pure $ Var $ map (lvlNameIx depth) x
 reifyNeutral depth (NApp a b) = lift2 App (reifyNeutral depth a) (reify depth b)
 reifyNeutral depth (NPrint x y) = do
-  x' <- reifyNeutral depth x
-  y' <- reify depth y
+  -- x' <- reifyNeutral depth x
+  -- y' <- reify depth y
+  x' <- reify depth x
+  y' <- reifyNeutral depth y
   pure $ App (App Print x') y'
 
 step :: Eval Unit
