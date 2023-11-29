@@ -10,13 +10,23 @@ import Parsing.Language
 import Parsing.Combinators
 import Parsing.Expr
 
+import Data.Traversable
+
+import Data.Maybe
 import Data.Array
+import Data.Array as Array
+import Data.List hiding (some)
 
 import Control.Lazy
 
+import Bound
+
+import UTLC.Syntax.Name
+import UTLC.Utils
+
 data Term a
   = Var a
-  | Lam a (Term a)
+  | Lam String (Term a)
   | App (Term a) (Term a)
   | Print
 
@@ -26,8 +36,53 @@ data Def a =
   , body :: Term a
   }
 
+derive instance Foldable Term
+derive instance Traversable Term
+
+derive instance Functor Term
+
 type NamedTerm = Term String
 type NamedDef = Def String
+
+type IxTerm = Term IxV
+type IxDef = Def IxV
+
+findDef :: List NamedDef -> String -> Maybe NamedDef
+findDef Nil _ = Nothing
+findDef (Cons (Def d) ds) x =
+  if d.name == x
+  then Just $ Def d
+  else findDef ds x
+
+defFromNamed :: List NamedDef -> NamedDef -> IxDef
+defFromNamed defs (Def def) = Def $ def { body = fromNamed defs def.body }
+
+defToNamed :: IxDef -> NamedDef
+defToNamed (Def def) = Def $ def { body = toNamed def.body }
+
+fromNamed :: List NamedDef -> NamedTerm -> IxTerm
+fromNamed defs = go emptyNamingCtx
+  where
+    go :: NamingCtx -> NamedTerm -> IxTerm
+    go nCtx (Var name) =
+      case nameToIx_maybe nCtx name of
+        Just i -> Var (BV (IxName { name: name, ix: i }))
+        Nothing ->
+          case findDef defs name of
+            Just (Def def) -> fromNamed defs $ def.body
+            Nothing -> Var $ FV name
+    go nCtx (App x y) = App (go nCtx x) (go nCtx y)
+    go nCtx (Lam x body) =
+      let nCtx' = liftNamingCtx x nCtx
+      in
+      Lam x (go nCtx' body)
+    go _nCtx Print = Print
+
+toNamed :: IxTerm -> NamedTerm
+toNamed = map go
+  where
+    go (FV x) = x
+    go (BV (IxName ixName)) = ixName.name
 
 showTerm :: NamedTerm -> String
 showTerm (Var x) = x
@@ -51,7 +106,7 @@ showTerm (App a b) = showFn a <> " " <> showParens b
 showTerm Print = "print"
 
 showDef :: NamedDef -> String
-showDef (Def d) = d.name <> " := " <> showTerm d.body
+showDef (Def d) = d.name <> " := " <> showTerm d.body <> ";"
 
 parseName :: Parser String
 parseName = lexeme identifier
@@ -86,13 +141,14 @@ parseApp :: Parser NamedTerm
 parseApp = lexeme $ defer \_ -> do
   f <- parseTerm'
   args <- some parseTerm'
-  pure $ foldl App f args
+  pure $ Array.foldl App f args
 
 parseDef :: Parser NamedDef
 parseDef = lexeme do
   name <- identifier
   _ <- symbol ":="
   body <- parseTerm
+  _ <- symbol ";"
   pure $ Def { name: name, body: body }
 
 tokenParser = makeTokenParser (LanguageDef ((unGenLanguageDef haskellStyle) { reservedNames = keywords }))

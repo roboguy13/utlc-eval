@@ -103,3 +103,11 @@ let upstream =
         sha256:95ecd1a23305f270971f4d4f2040541559116de6e21aba773d368787f7f1ed35
 
 in  upstream
+  with bound =
+    {
+      repo = "https://github.com/benjamin-hodgson/purescript-bound"
+    , version = "8de1f335cef9a58db240142acba4fa98af62dda9"
+    , dependencies =
+        [ "transformers"
+        ]
+    }

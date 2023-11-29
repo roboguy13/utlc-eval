@@ -4,6 +4,7 @@ module UTLC.Eval.NbE
 import Prelude
 
 import UTLC.Syntax.Term
+import UTLC.Syntax.Name
 
 import Control.Monad.Writer
 import Control.Monad.State
@@ -12,10 +13,16 @@ import Control.Monad.Except
 import Control.Apply
 
 import Data.Maybe
+import Data.Traversable
 import Data.Tuple
+import Data.String as String
 
 import Data.List
 import Data.Either
+
+import Data.Enum
+
+import Bound
 
 data EvalError = TooManySteps | UnknownName String
 
@@ -34,9 +41,9 @@ data Value
   | VNeutral Neutral
 
 data Neutral
-  = NVar String
+  = NVar LvlV
   | NApp Neutral Value
-  | NPrint
+  | NPrint Neutral Value
 
 type Abstraction =
   { argName :: String
@@ -50,22 +57,41 @@ runEval m =
     Left (UnknownName x) -> Left $ "Unknown name " <> x
     Right (Tuple (Tuple r _) stdout) -> Right (Tuple stdout r)
 
-normalizeWithDefs :: List NamedDef -> NamedTerm -> Eval NamedTerm
-normalizeWithDefs defs term = do
-  env <- extendWithDefs mempty defs
-  normalize env term
+-- normalizeWithDefs :: List IxDef -> IxTerm -> Eval IxTerm
+-- normalizeWithDefs defs term = do
+--   env <- extendWithDefs mempty defs
+--   normalize env term
 
-normalize :: Env -> NamedTerm -> Eval NamedTerm
-normalize env = reify env <=< eval env
+normalize :: Env -> IxTerm -> Eval IxTerm
+normalize env = reify initialLevel <=< eval env
 
-eval :: Env -> NamedTerm -> Eval Value
-eval env e = step *> eval' env e
+class ToValue a where
+  toValue :: Env -> a -> Eval Value
 
-eval' :: Env -> NamedTerm -> Eval Value
-eval' env (Var x) =
-  case lookup env x of
-      Nothing -> pure $ VNeutral $ NVar x
-      Just v -> pure v
+instance ToValue Value where
+  toValue _ x = pure x
+
+instance ToValue a => ToValue (Term a) where
+  toValue env e = step *> eval' env e
+
+instance ToValue IxName where
+  toValue env (IxName n) = pure $ lookupIx env n.ix
+
+instance ToValue a => ToValue (V a) where
+  toValue _env (FV x) = pure $ VNeutral $ NVar $ FV x
+  toValue env (BV x) = toValue env x
+
+-- instance ToValue String where
+--   toValue env x =
+--     case lookup env x of
+--         Nothing -> pure $ VNeutral $ NVar x
+--         Just v -> pure v
+
+eval :: forall a. ToValue a => Env -> Term a -> Eval Value
+eval = toValue
+
+eval' :: forall a. ToValue a => Env -> Term a -> Eval Value
+eval' env (Var x) = toValue env x
 
 eval' env (App a b) = do
   vA <- eval env a
@@ -74,12 +100,13 @@ eval' env (App a b) = do
        vB <- eval env b
 
        case n of
-         NPrint -> do
-            vT <- reify env vB
-            tell $ singleton (showTerm vT)
-         _ -> pure unit
+         -- NPrint -> do
+         --    vT <- reify env vB
+         --    tell $ singleton (showTerm vT)
+         --    pure $ VNeutral $ NApp n vB
+         --    -- pure vB  -- 'print' gives back its argument
+         _ -> pure $ VNeutral $ NApp n vB
 
-       pure $ VNeutral $ NApp n vB
 
     VLam abstr ->
       abstr.fn =<< eval env b
@@ -87,23 +114,42 @@ eval' env (App a b) = do
 eval' env (Lam x body) = do
   pure $ VLam
     { argName: x
-    , fn: \v -> eval (extend env x v) body
+    , fn: \v -> eval (extend env v) body
     }
 
-eval' _env Print =
-  pure $ VNeutral NPrint
+eval' env Print = do
+  let x1 = "x1" -- fresh env
+  let x2 = "x2" -- fresh (extend env x1 (VNeutral (NVar x1)))
+  pure $ VLam
+    { argName: x1
+    , fn: \v1 -> pure $ VLam
+        { argName: x2
+        , fn: \v2 -> evalPrint env v1 v2
+        }
+    }
 
-reify :: Env -> Value -> Eval NamedTerm
-reify env (VLam abstr) = do
-  e <- reify env =<< abstr.fn (VNeutral (NVar abstr.argName))
-  pure $ Lam abstr.argName e
+evalPrint :: Env -> Value -> Value -> Eval Value
+evalPrint env val cont = do
+  valTerm <- reify (mkLevel env) val
+  tell $ singleton $ showTerm $ toNamed valTerm
+  pure cont
+
+reify :: Lvl -> Value -> Eval IxTerm
+reify depth (VLam abstr) = do
+  v <- abstr.fn (VNeutral (NVar (BV (LvlName { name: abstr.argName, lvl: depth }))))
+  Lam abstr.argName <$> reify (nextLevel depth) v
+  -- e <- reify env =<< abstr.fn (VNeutral (NVar abstr.argName))
+  -- pure $ Lam abstr.argName e
 
 reify env (VNeutral n) = reifyNeutral env n
 
-reifyNeutral :: Env -> Neutral -> Eval NamedTerm
-reifyNeutral _env (NVar x) = pure $ Var x
-reifyNeutral env (NApp a b) = lift2 App (reifyNeutral env a) (reify env b)
-reifyNeutral _env NPrint = pure Print
+reifyNeutral :: Lvl -> Neutral -> Eval IxTerm
+reifyNeutral depth (NVar x) = pure $ Var $ map (lvlNameIx depth) x
+reifyNeutral depth (NApp a b) = lift2 App (reifyNeutral depth a) (reify depth b)
+reifyNeutral depth (NPrint x y) = do
+  x' <- reifyNeutral depth x
+  y' <- reify depth y
+  pure $ App (App Print x') y'
 
 step :: Eval Unit
 step = do
@@ -112,25 +158,25 @@ step = do
     then throwError TooManySteps
     else modify_ (_ + 1)
 
-type Env = List (Tuple String Value)
+type Env = List Value
 
--- NOTE: Recursion is not supported. Can be implemented indirectly inside the language using a fixpoint combinator
-extendWithDef :: Env -> NamedDef -> Eval Env
-extendWithDef env (Def d) = extend env d.name <$> eval env d.body
+-- -- NOTE: Recursion is not supported. Can be implemented indirectly inside the language using a fixpoint combinator
+-- extendWithDef :: Env -> IxDef -> Eval Env
+-- extendWithDef env (Def d) = extend env d.name <$> eval env d.body
 
-extendWithDefs :: Env -> List NamedDef -> Eval Env
-extendWithDefs env Nil = pure env
-extendWithDefs env (Cons d ds) = do
-  env' <- extendWithDef env d
-  extendWithDefs env' ds
+-- extendWithDefs :: Env -> List IxDef -> Eval Env
+-- extendWithDefs env Nil = pure env
+-- extendWithDefs env (Cons d ds) = do
+--   env' <- extendWithDef env d
+--   extendWithDefs env' ds
 
-extend :: Env -> String -> Value -> Env
-extend env name val = Cons (Tuple name val) env
+extend :: Env -> Value -> Env
+extend env val = Cons val env
 
-lookup :: Env -> String -> Maybe Value
-lookup Nil name = Nothing
-lookup (Cons (Tuple x val) rest) name =
-  if x == name
-    then pure val
-    else lookup rest name
+-- lookup :: Env -> String -> Maybe Value
+-- lookup Nil _name = Nothing
+-- lookup (Cons (Tuple x val) rest) name =
+--   if x == name
+--     then pure val
+--     else lookup rest name
 

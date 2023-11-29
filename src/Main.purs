@@ -9,7 +9,7 @@ import Effect.Console
 import Data.Foldable
 
 import Parsing
-import Parsing.String (eof)
+import Parsing.String
 
 import Halogen as H
 import Halogen.Aff as HA
@@ -48,13 +48,13 @@ type ReplState = { input :: String, defsString :: String, defs :: List NamedDef,
 data Action = Nop | Focus | UpdateInput String | UpdateDefString String | ReloadDefs | ExecuteCommand
 
 initialState :: ReplState
-initialState = { input: "", history: [], message: "", defsString: "", defs: Nil }
+initialState = { input: "", history: [], message: "", defsString: defaultDefString, defs: Nil }
 
 replComponent :: forall query input output m. MonadAff m => H.Component query input output m
 replComponent = H.mkComponent
   { initialState: \_ -> initialState
   , render
-  , eval: H.mkEval H.defaultEval { handleAction = handleAction, initialize = Just Focus }
+  , eval: H.mkEval H.defaultEval { handleAction = handleAction, initialize = Just ReloadDefs }
   }
 
 replInputRef :: H.RefLabel
@@ -82,7 +82,7 @@ render st =
               [ HP.id "definitionsArea"
               , HP.ref defsRef
               , HP.rows 10
-              , HP.placeholder "Type your definitions here"
+              , HP.value defaultDefString
               , HE.onValueInput UpdateDefString
               ]
           ]
@@ -217,19 +217,20 @@ instructions =
         , HH.td_ [ HH.pre_ [ HH.text "<term> <term>" ] ]
         ]
     , HH.tr_
-        [ HH.td_ [ HH.text "Printing to standard output" ]
+        [ HH.td_ [ HH.text "Print the argument" ]
         , HH.td_ [ HH.pre_ [ HH.text "print" ] ]
         ]
     , HH.tr_
         [ HH.td_ [ HH.text "Definition" ]
-        , HH.td_ [ HH.pre_ [ HH.text "<defName> := <term>" ] ]
+        , HH.td_ [ HH.pre_ [ HH.text "<var> := <term>;" ] ]
         ]
     ]
   , HH.br_
   , HH.ul_
       -- [ HH.li_ [ HH.text "Press the 'Reload' button to reload the definitions for use in the REPL." ]
       [ HH.li_ [ HH.text $ "Each expression entered into the REPL is evaluated into a normal form and then this is printed. If it is not in a normal form after " <> show maxSteps <> " evaluation steps, evaluation is terminated with an error" ]
-      , HH.li_ [ HH.text "Note that the ", printWord, HH.text " function prints its argument to standard output (after normalizing it) whenever an application of ", printWord, HH.text " to an argument is evaluated." ]
+      , HH.li_ [ HH.text "Note that the ", printWord, HH.text " function prints its argument (after normalizing it) whenever an application of ", printWord, HH.text " to an argument is evaluated." ]
+      , HH.li_ [ HH.text "There is *nothing* else in the language that is not described above. Everything is either: an anonymous function, a function application or a variable. Definitions simply provide a way to name expressions. This could be eliminated from the language without changing any properties of the language, though it would be much harder to work with." ]
       ]
   ]
 
@@ -240,13 +241,29 @@ runInput input =
     Right term -> do
       st <- H.get
       -- case runParser 
-      case runEval (normalizeWithDefs st.defs term) of
+      case runEval (normalize mempty (fromNamed st.defs term)) of
           Left err -> updateTerminal err
           Right (Tuple stdout r) -> do
             traverse_ updateTerminal stdout
-            updateTerminal $ showTerm r
+            updateTerminal $ "Normal form: " <> showTerm (toNamed r)
 
 
 printWord :: forall w i. HTML w i
 printWord = HH.span [ HP.class_ (HH.ClassName "monospace") ] [ HH.text "print" ]
+
+defaultDefString :: String
+defaultDefString =
+  unlines
+  [ "zero := \\f. \\x. x;"
+  , "succ := \\n. (\\f. (\\x. (f ((n f))) x));"
+  , "add := \\m. \\n. \\f. m f (n f x);"
+  , "mult := \\m. \\n. \\f. \\x. m (n f) x;"
+  , "exp := \\m. \\n. n m;"
+  , "one := succ zero;"
+  , "two := succ one;"
+  , "three := succ two;"
+  , "four := succ three;"
+  , "five := succ four;"
+  , "six := succ five;"
+  ]
 
