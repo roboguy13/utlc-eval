@@ -236,23 +236,26 @@ instructions =
       [ HH.li_ [ HH.pre_ [ HH.text "(\\x. x) a" ] ]
       , HH.li_ [ HH.pre_ [ HH.text "(\\x. x x) a" ] ]
       , HH.li_ [ HH.pre_ [ HH.text "print b" ] ]
-      , HH.li_ [ HH.pre_ [ HH.text "(print c) (print d)" ] ]
-      , HH.li_ [ HH.pre_ [ HH.text "two (print c)" ] ]
-      , HH.li_ [ HH.pre_ [ HH.text "add two four (print c)" ] ]
-      , HH.li_ [ HH.pre_ [ HH.text "mult two three (print c)" ] ]
-      , HH.li_ [ HH.pre_ [ HH.text "exp two three (print c)" ] ]
-      , HH.li_ [ HH.pre_ [ HH.text "minus six two (print a)" ] ]
-      , HH.li_ [ HH.pre_ [ HH.text "isZero zero (print a) (print b)" ] ]
-      , HH.li_ [ HH.pre_ [ HH.text "isZero one (print a) (print b)" ] ]
-      , HH.li_ [ HH.pre_ [ HH.text "factorial three (print a)" ] ]
-      , HH.li_ [ HH.pre_ [ HH.text "fibonacci five (print a)" ] ]
+      , HH.li_ [ HH.pre_ [ HH.text "print b (\\x. x)" ] ]
+      , HH.li_ [ HH.pre_ [ HH.text "print b id" ] ]
+      , HH.li_ [ HH.pre_ [ HH.text "print c (print d id)" ] ]
+      , HH.li_ [ HH.pre_ [ HH.text "two (print c) id" ] ]
+      , HH.li_ [ HH.pre_ [ HH.text "add two four (print c) id" ] ]
+      , HH.li_ [ HH.pre_ [ HH.text "mult two three (print c) id" ] ]
+      , HH.li_ [ HH.pre_ [ HH.text "exp two three (print c) id" ] ]
+      , HH.li_ [ HH.pre_ [ HH.text "minus six two (print a) id" ] ]
+      , HH.li_ [ HH.pre_ [ HH.text "isZero zero (print a) (print b) id" ] ]
+      , HH.li_ [ HH.pre_ [ HH.text "isZero one (print a) (print b) id" ] ]
+      , HH.li_ [ HH.pre_ [ HH.text "factorial three (print a) id" ] ]
+      , HH.li_ [ HH.pre_ [ HH.text "fibonacci five (print a) id" ] ]
       ]
   , HH.br_
   , HH.h2_ [ HH.text "Notes" ]
   , HH.ul_
       -- [ HH.li_ [ HH.text "Press the 'Reload' button to reload the definitions for use in the REPL." ]
-      [ HH.li_ [ HH.text $ "Each expression entered into the REPL is evaluated into a normal form and then this is printed." ] -- If it is not in a normal form after " <> show maxSteps <> " evaluation steps, evaluation is terminated with an error" ]
-      , HH.li_ [ HH.text "Note that the ", printWord, HH.text " function prints its argument (after normalizing it) whenever an application of ", printWord, HH.text " to an argument is evaluated." ]
+      [ HH.li_ [ HH.text "Each expression entered into the REPL is evaluated into a normal form and then this is printed." ] -- If it is not in a normal form after " <> show maxSteps <> " evaluation steps, evaluation is terminated with an error" ]
+      , HH.li_ [ monospace "id", HH.text " is just a name for the identity function. See the definitions panel. The identity function is ", monospace "\\x. x" ]
+      , HH.li_ [ HH.text "Note that the ", printWord, HH.text " function prints its argument (after normalizing it) whenever an application of ", printWord, HH.text " to an argument is evaluated. More specifically, when applied to an argument it gives back a function that will print when that function is applied to a function. This whole thing normalizes to the function its applied to. See the examples." ]
       , HH.li_ [ HH.text "There is *nothing* else in the language that is not described above. Everything is either: an anonymous function, a function application or a variable. Definitions simply provide a way to name expressions. This could be eliminated from the language without changing any properties of the language, though it would be much harder to work with." ]
       ]
   ]
@@ -272,7 +275,10 @@ runInput input =
 
 
 printWord :: forall w i. HTML w i
-printWord = HH.span [ HP.class_ (HH.ClassName "monospace") ] [ HH.text "print" ]
+printWord = monospace "print"
+
+monospace :: forall w i. String -> HTML w i
+monospace str = HH.span [ HP.class_ (HH.ClassName "monospace") ] [ HH.text str ]
 
 defaultDefString :: String
 defaultDefString =
@@ -298,6 +304,7 @@ defaultDefString =
   , "  \\m. \\n. n pred m;"
   , ""
   , ""
+  , "id := \\x. x;"
   , "const := \\x. \\y. x;"
   , ""
   , "Y := \\f. (\\x. f (\\v. x x v)) (\\x. f (\\v. x x v));"
