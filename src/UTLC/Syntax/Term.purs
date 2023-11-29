@@ -82,7 +82,7 @@ toNamed :: IxTerm -> NamedTerm
 toNamed = map go
   where
     go (FV x) = x
-    go (BV (IxName ixName)) = ixName.name
+    go (BV ixName) = showIxName ixName
 
 showTerm :: NamedTerm -> String
 showTerm (Var x) = x

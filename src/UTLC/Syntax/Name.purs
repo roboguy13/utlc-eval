@@ -72,6 +72,10 @@ initialLevel = Lvl 0
 showIx :: Ix -> String
 showIx (Ix i) = show i
 
+-- TODO: Deal with this better
+showIxName :: IxName -> String
+showIxName (IxName ixName) = ixName.name -- <> showIx ixName.ix
+
 ixLvl :: Int -> Ix -> Lvl
 ixLvl depth (Ix i) = Lvl $ depth - i - 1
 

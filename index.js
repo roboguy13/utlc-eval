@@ -3529,14 +3529,6 @@
   var throwError = function(dict) {
     return dict.throwError;
   };
-  var monadThrowEither = /* @__PURE__ */ function() {
-    return {
-      throwError: Left.create,
-      Monad0: function() {
-        return monadEither;
-      }
-    };
-  }();
   var catchError = function(dict) {
     return dict.catchError;
   };
@@ -3667,20 +3659,6 @@
   var runWriterT = function(v) {
     return v;
   };
-  var monadTransWriterT = function(dictMonoid) {
-    var mempty3 = mempty(dictMonoid);
-    return {
-      lift: function(dictMonad) {
-        var bind11 = bind(dictMonad.Bind1());
-        var pure16 = pure(dictMonad.Applicative0());
-        return function(m) {
-          return bind11(m)(function(a2) {
-            return pure16(new Tuple(a2, mempty3));
-          });
-        };
-      }
-    };
-  };
   var mapWriterT = function(f) {
     return function(v) {
       return f(v);
@@ -3794,24 +3772,6 @@
           return Semigroup0;
         },
         Monad1: function() {
-          return monadWriterT22;
-        }
-      };
-    };
-  };
-  var monadThrowWriterT = function(dictMonoid) {
-    var lift4 = lift(monadTransWriterT(dictMonoid));
-    var monadWriterT1 = monadWriterT(dictMonoid);
-    return function(dictMonadThrow) {
-      var Monad0 = dictMonadThrow.Monad0();
-      var lift1 = lift4(Monad0);
-      var throwError5 = throwError(dictMonadThrow);
-      var monadWriterT22 = monadWriterT1(Monad0);
-      return {
-        throwError: function(e) {
-          return lift1(throwError5(e));
-        },
-        Monad0: function() {
           return monadWriterT22;
         }
       };
@@ -4218,20 +4178,6 @@
       }
     };
   };
-  var monadStateStateT = function(dictMonad) {
-    var pure16 = pure(dictMonad.Applicative0());
-    var monadStateT1 = monadStateT(dictMonad);
-    return {
-      state: function(f) {
-        return function($200) {
-          return pure16(f($200));
-        };
-      },
-      Monad0: function() {
-        return monadStateT1;
-      }
-    };
-  };
   var monadTellStateT = function(dictMonadTell) {
     var Monad1 = dictMonadTell.Monad1();
     var Semigroup0 = dictMonadTell.Semigroup0();
@@ -4248,20 +4194,6 @@
         return Semigroup0;
       },
       Monad1: function() {
-        return monadStateT1;
-      }
-    };
-  };
-  var monadThrowStateT = function(dictMonadThrow) {
-    var Monad0 = dictMonadThrow.Monad0();
-    var lift1 = lift3(Monad0);
-    var throwError5 = throwError(dictMonadThrow);
-    var monadStateT1 = monadStateT(Monad0);
-    return {
-      throwError: function(e) {
-        return lift1(throwError5(e));
-      },
-      Monad0: function() {
         return monadStateT1;
       }
     };
@@ -9491,6 +9423,9 @@
     }
   };
   var map25 = /* @__PURE__ */ map(functorNamingCtx$prime);
+  var showIxName = function(v) {
+    return v.value0.name;
+  };
   var shiftIx = function(v) {
     return v + 1 | 0;
   };
@@ -9499,10 +9434,10 @@
   };
   var nameToIx_maybe = function(v) {
     return function(n) {
-      var v1 = find3(function($85) {
+      var v1 = find3(function($88) {
         return function(v2) {
           return v2 === n;
-        }(fst($85));
+        }(fst($88));
       })(v);
       if (v1 instanceof Just) {
         return new Just(v1.value0.value1);
@@ -9512,11 +9447,11 @@
         return Nothing.value;
       }
       ;
-      throw new Error("Failed pattern match at UTLC.Syntax.Name (line 122, column 3 - line 124, column 23): " + [v1.constructor.name]);
+      throw new Error("Failed pattern match at UTLC.Syntax.Name (line 126, column 3 - line 128, column 23): " + [v1.constructor.name]);
     };
   };
-  var mkLevel = function($86) {
-    return Lvl(length2($86));
+  var mkLevel = function($89) {
+    return Lvl(length2($89));
   };
   var lvlIx = function(depth) {
     return function(v) {
@@ -9553,7 +9488,7 @@
           return;
         }
         ;
-        throw new Error("Failed pattern match at UTLC.Syntax.Name (line 81, column 1 - line 81, column 40): " + [v.constructor.name, v1.constructor.name]);
+        throw new Error("Failed pattern match at UTLC.Syntax.Name (line 85, column 1 - line 85, column 40): " + [v.constructor.name, v1.constructor.name]);
       }
       ;
       while (!$tco_done) {
@@ -31725,7 +31660,7 @@
       }
       ;
       if (v instanceof BV) {
-        return v.value0.value0.name;
+        return showIxName(v.value0);
       }
       ;
       throw new Error("Failed pattern match at UTLC.Syntax.Term (line 84, column 5 - line 84, column 18): " + [v.constructor.name]);
@@ -31772,8 +31707,8 @@
         throw new Error("Failed pattern match at UTLC.Syntax.Term (line 102, column 5 - line 102, column 29): " + [v1.constructor.name]);
       };
       var showParens = function(e) {
-        var $136 = isNested(e);
-        if ($136) {
+        var $135 = isNested(e);
+        if ($135) {
           return parens(showTerm(e));
         }
         ;
@@ -31878,8 +31813,8 @@
         }
         ;
         if (v instanceof Cons) {
-          var $143 = v.value0.value0.name === v1;
-          if ($143) {
+          var $142 = v.value0.value0.name === v1;
+          if ($142) {
             $tco_done = true;
             return new Just(new Def(v.value0.value0));
           }
@@ -31955,9 +31890,6 @@
   var bindStateT2 = /* @__PURE__ */ bindStateT(monadWriterT2);
   var bind9 = /* @__PURE__ */ bind(bindStateT2);
   var map112 = /* @__PURE__ */ map(/* @__PURE__ */ functorStateT(/* @__PURE__ */ functorWriterT(functorEither)));
-  var monadStateStateT2 = /* @__PURE__ */ monadStateStateT(monadWriterT2);
-  var throwError4 = /* @__PURE__ */ throwError(/* @__PURE__ */ monadThrowStateT(/* @__PURE__ */ monadThrowWriterT(monoidList)(monadThrowEither)));
-  var modify_3 = /* @__PURE__ */ modify_(monadStateStateT2);
   var discard5 = /* @__PURE__ */ discard(discardUnit)(bindStateT2);
   var tell3 = /* @__PURE__ */ tell(/* @__PURE__ */ monadTellStateT(/* @__PURE__ */ monadTellWriterT(monoidList)(monadEither)));
   var applySecond5 = /* @__PURE__ */ applySecond(applyStateT2);
@@ -32064,6 +31996,7 @@
       }
     };
   };
+  var step4 = /* @__PURE__ */ pure14(unit);
   var runEval = function(m) {
     var v = runWriterT(flip(runStateT)(0)(m));
     if (v instanceof Left && v.value0 instanceof TooManySteps) {
@@ -32119,17 +32052,6 @@
       throw new Error("Failed pattern match at UTLC.Eval.NbE (line 137, column 1 - line 137, column 37): " + [v.constructor.name, v1.constructor.name]);
     };
   };
-  var maxSteps = 1500;
-  var step4 = /* @__PURE__ */ bind9(/* @__PURE__ */ get(monadStateStateT2))(function(n) {
-    var $83 = n >= maxSteps;
-    if ($83) {
-      return throwError4(TooManySteps.value);
-    }
-    ;
-    return modify_3(function(v) {
-      return v + 1 | 0;
-    });
-  });
   var extend2 = function(env) {
     return function(val) {
       return new Cons(val, env);
@@ -32220,7 +32142,7 @@
   }
 
   // output/Main/index.js
-  var modify_4 = /* @__PURE__ */ modify_(monadStateHalogenM);
+  var modify_3 = /* @__PURE__ */ modify_(monadStateHalogenM);
   var append8 = /* @__PURE__ */ append(semigroupArray);
   var applyFirst5 = /* @__PURE__ */ applyFirst(applyParserT);
   var show5 = /* @__PURE__ */ show(showParseError);
@@ -32288,18 +32210,18 @@
   }();
   var updateTerminal = function(dictMonadAff) {
     return function(resultMsg) {
-      return modify_4(function(st) {
-        var $58 = {};
-        for (var $59 in st) {
-          if ({}.hasOwnProperty.call(st, $59)) {
-            $58[$59] = st[$59];
+      return modify_3(function(st) {
+        var $57 = {};
+        for (var $58 in st) {
+          if ({}.hasOwnProperty.call(st, $58)) {
+            $57[$58] = st[$58];
           }
           ;
         }
         ;
-        $58.history = append8(st.history)([resultMsg]);
-        $58.message = resultMsg;
-        return $58;
+        $57.history = append8(st.history)([resultMsg]);
+        $57.message = resultMsg;
+        return $57;
       });
     };
   };
@@ -32309,8 +32231,8 @@
   var unlines = /* @__PURE__ */ function() {
     var go2 = function(here) {
       return function(rest) {
-        var $61 = $$null2(rest);
-        if ($61) {
+        var $60 = $$null2(rest);
+        if ($60) {
           return here;
         }
         ;
@@ -32341,11 +32263,11 @@
             });
           }
           ;
-          throw new Error("Failed pattern match at Main (line 257, column 7 - line 261, column 69): " + [v1.constructor.name]);
+          throw new Error("Failed pattern match at Main (line 266, column 7 - line 270, column 69): " + [v1.constructor.name]);
         });
       }
       ;
-      throw new Error("Failed pattern match at Main (line 252, column 3 - line 261, column 69): " + [v.constructor.name]);
+      throw new Error("Failed pattern match at Main (line 261, column 3 - line 270, column 69): " + [v.constructor.name]);
     };
   };
   var replInputRef = "replInput";
@@ -32362,16 +32284,14 @@
   var prompt = ">> ";
   var printWord = /* @__PURE__ */ span3([/* @__PURE__ */ class_("monospace")])([/* @__PURE__ */ text5("print")]);
   var mkAction = function(ev) {
-    var $70 = key(ev) === "Enter";
-    if ($70) {
+    var $69 = key(ev) === "Enter";
+    if ($69) {
       return ExecuteCommand.value;
     }
     ;
     return Nop.value;
   };
-  var instructions = /* @__PURE__ */ function() {
-    return [table_([tr_([th_([text5("Description")]), th_([text5("Syntax")])]), tr_([td_([text5("Anonymous function")]), td_([pre_([text5("\\<var>. <term>")])])]), tr_([td_([text5("Function application")]), td_([pre_([text5("<term> <term>")])])]), tr_([td_([text5("Print the argument")]), td_([pre_([text5("print")])])]), tr_([td_([text5("Definition")]), td_([pre_([text5("<var> := <term>;")])])])]), br_, h2_([text5("Examples")]), ul_([li_([pre_([text5("(\\x. x) a")])]), li_([pre_([text5("(\\x. x x) a")])]), li_([pre_([text5("print b")])]), li_([pre_([text5("(print c) (print d)")])]), li_([pre_([text5("two (print c)")])]), li_([pre_([text5("add two four (print c)")])]), li_([pre_([text5("mult two three (print c)")])]), li_([pre_([text5("exp two three (print c)")])])]), br_, h2_([text5("Notes")]), ul_([li_([text5("Each expression entered into the REPL is evaluated into a normal form and then this is printed. If it is not in a normal form after " + (show(showInt)(maxSteps) + " evaluation steps, evaluation is terminated with an error"))]), li_([text5("Note that the "), printWord, text5(" function prints its argument (after normalizing it) whenever an application of "), printWord, text5(" to an argument is evaluated.")]), li_([text5("There is *nothing* else in the language that is not described above. Everything is either: an anonymous function, a function application or a variable. Definitions simply provide a way to name expressions. This could be eliminated from the language without changing any properties of the language, though it would be much harder to work with.")])])];
-  }();
+  var instructions = [/* @__PURE__ */ table_([/* @__PURE__ */ tr_([/* @__PURE__ */ th_([/* @__PURE__ */ text5("Description")]), /* @__PURE__ */ th_([/* @__PURE__ */ text5("Syntax")])]), /* @__PURE__ */ tr_([/* @__PURE__ */ td_([/* @__PURE__ */ text5("Anonymous function")]), /* @__PURE__ */ td_([/* @__PURE__ */ pre_([/* @__PURE__ */ text5("\\<var>. <term>")])])]), /* @__PURE__ */ tr_([/* @__PURE__ */ td_([/* @__PURE__ */ text5("Function application")]), /* @__PURE__ */ td_([/* @__PURE__ */ pre_([/* @__PURE__ */ text5("<term> <term>")])])]), /* @__PURE__ */ tr_([/* @__PURE__ */ td_([/* @__PURE__ */ text5("Print the argument")]), /* @__PURE__ */ td_([/* @__PURE__ */ pre_([/* @__PURE__ */ text5("print")])])]), /* @__PURE__ */ tr_([/* @__PURE__ */ td_([/* @__PURE__ */ text5("Definition")]), /* @__PURE__ */ td_([/* @__PURE__ */ pre_([/* @__PURE__ */ text5("<var> := <term>;")])])]), /* @__PURE__ */ tr_([/* @__PURE__ */ td_([/* @__PURE__ */ text5("Comment")]), /* @__PURE__ */ td_([/* @__PURE__ */ pre_([/* @__PURE__ */ text5("-- This is a comment")])])])]), br_, /* @__PURE__ */ h2_([/* @__PURE__ */ text5("Examples")]), /* @__PURE__ */ ul_([/* @__PURE__ */ li_([/* @__PURE__ */ pre_([/* @__PURE__ */ text5("(\\x. x) a")])]), /* @__PURE__ */ li_([/* @__PURE__ */ pre_([/* @__PURE__ */ text5("(\\x. x x) a")])]), /* @__PURE__ */ li_([/* @__PURE__ */ pre_([/* @__PURE__ */ text5("print b")])]), /* @__PURE__ */ li_([/* @__PURE__ */ pre_([/* @__PURE__ */ text5("(print c) (print d)")])]), /* @__PURE__ */ li_([/* @__PURE__ */ pre_([/* @__PURE__ */ text5("two (print c)")])]), /* @__PURE__ */ li_([/* @__PURE__ */ pre_([/* @__PURE__ */ text5("add two four (print c)")])]), /* @__PURE__ */ li_([/* @__PURE__ */ pre_([/* @__PURE__ */ text5("mult two three (print c)")])]), /* @__PURE__ */ li_([/* @__PURE__ */ pre_([/* @__PURE__ */ text5("exp two three (print c)")])]), /* @__PURE__ */ li_([/* @__PURE__ */ pre_([/* @__PURE__ */ text5("minus six two (print a)")])]), /* @__PURE__ */ li_([/* @__PURE__ */ pre_([/* @__PURE__ */ text5("isZero zero (print a) (print b)")])]), /* @__PURE__ */ li_([/* @__PURE__ */ pre_([/* @__PURE__ */ text5("isZero one (print a) (print b)")])]), /* @__PURE__ */ li_([/* @__PURE__ */ pre_([/* @__PURE__ */ text5("factorial three (print a)")])]), /* @__PURE__ */ li_([/* @__PURE__ */ pre_([/* @__PURE__ */ text5("fibonacci five (print a)")])])]), br_, /* @__PURE__ */ h2_([/* @__PURE__ */ text5("Notes")]), /* @__PURE__ */ ul_([/* @__PURE__ */ li_([/* @__PURE__ */ text5("Each expression entered into the REPL is evaluated into a normal form and then this is printed.")]), /* @__PURE__ */ li_([/* @__PURE__ */ text5("Note that the "), printWord, /* @__PURE__ */ text5(" function prints its argument (after normalizing it) whenever an application of "), printWord, /* @__PURE__ */ text5(" to an argument is evaluated.")]), /* @__PURE__ */ li_([/* @__PURE__ */ text5("There is *nothing* else in the language that is not described above. Everything is either: an anonymous function, a function application or a variable. Definitions simply provide a way to name expressions. This could be eliminated from the language without changing any properties of the language, though it would be much harder to work with.")])])];
   var historyToHtml = function(st) {
     return intersperse(br_)(map30(text5)(st.history));
   };
@@ -32390,32 +32310,32 @@
       }
       ;
       if (v instanceof UpdateInput) {
-        return modify_4(function(st) {
-          var $72 = {};
-          for (var $73 in st) {
-            if ({}.hasOwnProperty.call(st, $73)) {
-              $72[$73] = st[$73];
+        return modify_3(function(st) {
+          var $71 = {};
+          for (var $72 in st) {
+            if ({}.hasOwnProperty.call(st, $72)) {
+              $71[$72] = st[$72];
             }
             ;
           }
           ;
-          $72.input = v.value0;
-          return $72;
+          $71.input = v.value0;
+          return $71;
         });
       }
       ;
       if (v instanceof UpdateDefString) {
-        return modify_4(function(st) {
-          var $76 = {};
-          for (var $77 in st) {
-            if ({}.hasOwnProperty.call(st, $77)) {
-              $76[$77] = st[$77];
+        return modify_3(function(st) {
+          var $75 = {};
+          for (var $76 in st) {
+            if ({}.hasOwnProperty.call(st, $76)) {
+              $75[$76] = st[$76];
             }
             ;
           }
           ;
-          $76.defsString = v.value0;
-          return $76;
+          $75.defsString = v.value0;
+          return $75;
         });
       }
       ;
@@ -32429,17 +32349,17 @@
           }
           ;
           if (v1 instanceof Right) {
-            return modify_4(function(st1) {
-              var $82 = {};
-              for (var $83 in st1) {
-                if ({}.hasOwnProperty.call(st1, $83)) {
-                  $82[$83] = st1[$83];
+            return modify_3(function(st1) {
+              var $81 = {};
+              for (var $82 in st1) {
+                if ({}.hasOwnProperty.call(st1, $82)) {
+                  $81[$82] = st1[$82];
                 }
                 ;
               }
               ;
-              $82.defs = v1.value0;
-              return $82;
+              $81.defs = v1.value0;
+              return $81;
             });
           }
           ;
@@ -32450,17 +32370,17 @@
       if (v instanceof ExecuteCommand) {
         return bind10(get2)(function(st) {
           return discard6(liftEffect7(log("history = " + show23(st.history))))(function() {
-            return discard6(modify_4(function(st1) {
-              var $86 = {};
-              for (var $87 in st1) {
-                if ({}.hasOwnProperty.call(st1, $87)) {
-                  $86[$87] = st1[$87];
+            return discard6(modify_3(function(st1) {
+              var $85 = {};
+              for (var $86 in st1) {
+                if ({}.hasOwnProperty.call(st1, $86)) {
+                  $85[$86] = st1[$86];
                 }
                 ;
               }
               ;
-              $86.history = append8(st1.history)([prompt + st1.input]);
-              return $86;
+              $85.history = append8(st1.history)([prompt + st1.input]);
+              return $85;
             }))(function() {
               return discard6(runInput1(st.input))(function() {
                 return refocus1;
@@ -32474,7 +32394,7 @@
     };
   };
   var defsRef = "defsRef";
-  var defaultDefString = /* @__PURE__ */ unlines(["zero := \\f. \\x. x;", "succ := \\n. (\\f. (\\x. (f (n f x))));", "add := \\m. \\n. \\f. m f (n f x);", "mult := \\m. \\n. \\f. \\x. m (n f) x;", "exp := \\m. \\n. n m;", "one := succ zero;", "two := succ one;", "three := succ two;", "four := succ three;", "five := succ four;", "six := succ five;"]);
+  var defaultDefString = /* @__PURE__ */ unlines(["zero := \\f. \\x. x;", "succ := \\n. (\\f. (\\x. (f (n f x))));", "add := \\m. \\n. \\f. \\x. m f (n f x);", "mult := \\m. \\n. \\f. \\x. m (n f) x;", "exp := \\m. \\n. n m;", "", "one := succ zero;", "two := succ one;", "three := succ two;", "four := succ three;", "five := succ four;", "six := succ five;", "", "pred :=", "  \\n. \\f. \\x.", "  n (\\g. \\h. h (g f)) (\\u. x) (\\u. u);", "", "minus :=", "  \\m. \\n. n pred m;", "", "", "const := \\x. \\y. x;", "", "Y := \\f. (\\x. f (\\v. x x v)) (\\x. f (\\v. x x v));", "", "true := \\t. \\f. t;", "false := \\t. \\f. f;", "and := \\p. \\q. p q p;", "or := \\p. \\q. p p q;", "if := \\p. \\t. \\f. p t f;", "", "isZero := \\n. n (\\x. false) true;", "", "equal :=", "  Y (\\f.", "    \\m. \\n.", "    if (and (isZero m) (isZero n))", "      true", "      (if (or (isZero m) (isZero n))", "         false", "         (f (pred m) (pred n))));", "", "factorial :=", "  \\arg.", "  Y (\\f.", "      \\n.", "      if (isZero n)", "        (\\v. one)", "        (\\v. mult n (f (pred n) v)))", "   arg dummy; -- The dummy argument is just because we need a thunk, since we are call-by-value", "", "fibonacci :=", "  \\arg.", "  Y (\\f.", "    \\n.", "    if (isZero n)", "      (\\v. one)", "      (if (isZero (pred n))  -- n = 1?", "        (\\v. one)", "        (\\v. add (f (pred n) v) (f (pred (pred n)) v))))", "   arg dummy;"]);
   var initialState = /* @__PURE__ */ function() {
     return {
       input: "",

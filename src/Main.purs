@@ -224,6 +224,10 @@ instructions =
         [ HH.td_ [ HH.text "Definition" ]
         , HH.td_ [ HH.pre_ [ HH.text "<var> := <term>;" ] ]
         ]
+    , HH.tr_
+        [ HH.td_ [ HH.text "Comment" ]
+        , HH.td_ [ HH.pre_ [ HH.text "-- This is a comment" ] ]
+        ]
     ]
   , HH.br_
   , HH.h2_ [ HH.text "Examples" ]
@@ -236,12 +240,17 @@ instructions =
       , HH.li_ [ HH.pre_ [ HH.text "add two four (print c)" ] ]
       , HH.li_ [ HH.pre_ [ HH.text "mult two three (print c)" ] ]
       , HH.li_ [ HH.pre_ [ HH.text "exp two three (print c)" ] ]
+      , HH.li_ [ HH.pre_ [ HH.text "minus six two (print a)" ] ]
+      , HH.li_ [ HH.pre_ [ HH.text "isZero zero (print a) (print b)" ] ]
+      , HH.li_ [ HH.pre_ [ HH.text "isZero one (print a) (print b)" ] ]
+      , HH.li_ [ HH.pre_ [ HH.text "factorial three (print a)" ] ]
+      , HH.li_ [ HH.pre_ [ HH.text "fibonacci five (print a)" ] ]
       ]
   , HH.br_
   , HH.h2_ [ HH.text "Notes" ]
   , HH.ul_
       -- [ HH.li_ [ HH.text "Press the 'Reload' button to reload the definitions for use in the REPL." ]
-      [ HH.li_ [ HH.text $ "Each expression entered into the REPL is evaluated into a normal form and then this is printed. If it is not in a normal form after " <> show maxSteps <> " evaluation steps, evaluation is terminated with an error" ]
+      [ HH.li_ [ HH.text $ "Each expression entered into the REPL is evaluated into a normal form and then this is printed." ] -- If it is not in a normal form after " <> show maxSteps <> " evaluation steps, evaluation is terminated with an error" ]
       , HH.li_ [ HH.text "Note that the ", printWord, HH.text " function prints its argument (after normalizing it) whenever an application of ", printWord, HH.text " to an argument is evaluated." ]
       , HH.li_ [ HH.text "There is *nothing* else in the language that is not described above. Everything is either: an anonymous function, a function application or a variable. Definitions simply provide a way to name expressions. This could be eliminated from the language without changing any properties of the language, though it would be much harder to work with." ]
       ]
@@ -269,14 +278,64 @@ defaultDefString =
   unlines
   [ "zero := \\f. \\x. x;"
   , "succ := \\n. (\\f. (\\x. (f (n f x))));"
-  , "add := \\m. \\n. \\f. m f (n f x);"
+  , "add := \\m. \\n. \\f. \\x. m f (n f x);"
   , "mult := \\m. \\n. \\f. \\x. m (n f) x;"
   , "exp := \\m. \\n. n m;"
+  , ""
   , "one := succ zero;"
   , "two := succ one;"
   , "three := succ two;"
   , "four := succ three;"
   , "five := succ four;"
   , "six := succ five;"
+  , ""
+  , "pred :="
+  , "  \\n. \\f. \\x."
+  , "  n (\\g. \\h. h (g f)) (\\u. x) (\\u. u);"
+  , ""
+  , "minus :="
+  , "  \\m. \\n. n pred m;"
+  , ""
+  , ""
+  , "const := \\x. \\y. x;"
+  , ""
+  , "Y := \\f. (\\x. f (\\v. x x v)) (\\x. f (\\v. x x v));"
+  , ""
+  , "true := \\t. \\f. t;"
+  , "false := \\t. \\f. f;"
+  , "and := \\p. \\q. p q p;"
+  , "or := \\p. \\q. p p q;"
+  , "if := \\p. \\t. \\f. p t f;"
+  , ""
+  , "isZero := \\n. n (\\x. false) true;"
+  , ""
+  , "equal :="
+  , "  Y (\\f."
+  , "    \\m. \\n."
+  , "    if (and (isZero m) (isZero n))"
+  , "      true"
+  , "      (if (or (isZero m) (isZero n))"
+  , "         false"
+  , "         (f (pred m) (pred n))));"
+  , ""
+  , "factorial :="
+  , "  \\arg."
+  , "  Y (\\f."
+  , "      \\n."
+  , "      if (isZero n)"
+  , "        (\\v. one)"
+  , "        (\\v. mult n (f (pred n) v)))"
+  , "   arg dummy; -- The dummy argument is just because we need a thunk, since we are call-by-value"
+  , ""
+  , "fibonacci :="
+  , "  \\arg."
+  , "  Y (\\f."
+  , "    \\n."
+  , "    if (isZero n)"
+  , "      (\\v. one)"
+  , "      (if (isZero (pred n))  -- n = 1?"
+  , "        (\\v. one)"
+  , "        (\\v. add (f (pred n) v) (f (pred (pred n)) v))))"
+  , "   arg dummy;"
   ]
 

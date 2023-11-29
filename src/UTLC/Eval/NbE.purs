@@ -153,10 +153,11 @@ reifyNeutral depth (NPrint x y) = do
 
 step :: Eval Unit
 step = do
-  n <- get
-  if n >= maxSteps
-    then throwError TooManySteps
-    else modify_ (_ + 1)
+  pure unit
+  -- n <- get
+  -- if n >= maxSteps
+  --   then throwError TooManySteps
+  --   else modify_ (_ + 1)
 
 type Env = List Value
 
