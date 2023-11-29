@@ -7284,6 +7284,7 @@
   }();
   var h1 = /* @__PURE__ */ element2("h1");
   var h2 = /* @__PURE__ */ element2("h2");
+  var h2_ = /* @__PURE__ */ h2([]);
   var input2 = function(props) {
     return element2("input")(props)([]);
   };
@@ -32118,7 +32119,7 @@
       throw new Error("Failed pattern match at UTLC.Eval.NbE (line 137, column 1 - line 137, column 37): " + [v.constructor.name, v1.constructor.name]);
     };
   };
-  var maxSteps = 1e4;
+  var maxSteps = 1500;
   var step4 = /* @__PURE__ */ bind9(/* @__PURE__ */ get(monadStateStateT2))(function(n) {
     var $83 = n >= maxSteps;
     if ($83) {
@@ -32340,11 +32341,11 @@
             });
           }
           ;
-          throw new Error("Failed pattern match at Main (line 244, column 7 - line 248, column 69): " + [v1.constructor.name]);
+          throw new Error("Failed pattern match at Main (line 257, column 7 - line 261, column 69): " + [v1.constructor.name]);
         });
       }
       ;
-      throw new Error("Failed pattern match at Main (line 239, column 3 - line 248, column 69): " + [v.constructor.name]);
+      throw new Error("Failed pattern match at Main (line 252, column 3 - line 261, column 69): " + [v.constructor.name]);
     };
   };
   var replInputRef = "replInput";
@@ -32369,7 +32370,7 @@
     return Nop.value;
   };
   var instructions = /* @__PURE__ */ function() {
-    return [table_([tr_([th_([text5("Description")]), th_([text5("Syntax")])]), tr_([td_([text5("Anonymous function")]), td_([pre_([text5("\\<var>. <term>")])])]), tr_([td_([text5("Function application")]), td_([pre_([text5("<term> <term>")])])]), tr_([td_([text5("Print the argument")]), td_([pre_([text5("print")])])]), tr_([td_([text5("Definition")]), td_([pre_([text5("<var> := <term>;")])])])]), br_, ul_([li_([text5("Each expression entered into the REPL is evaluated into a normal form and then this is printed. If it is not in a normal form after " + (show(showInt)(maxSteps) + " evaluation steps, evaluation is terminated with an error"))]), li_([text5("Note that the "), printWord, text5(" function prints its argument (after normalizing it) whenever an application of "), printWord, text5(" to an argument is evaluated.")]), li_([text5("There is *nothing* else in the language that is not described above. Everything is either: an anonymous function, a function application or a variable. Definitions simply provide a way to name expressions. This could be eliminated from the language without changing any properties of the language, though it would be much harder to work with.")])])];
+    return [table_([tr_([th_([text5("Description")]), th_([text5("Syntax")])]), tr_([td_([text5("Anonymous function")]), td_([pre_([text5("\\<var>. <term>")])])]), tr_([td_([text5("Function application")]), td_([pre_([text5("<term> <term>")])])]), tr_([td_([text5("Print the argument")]), td_([pre_([text5("print")])])]), tr_([td_([text5("Definition")]), td_([pre_([text5("<var> := <term>;")])])])]), br_, h2_([text5("Examples")]), ul_([li_([pre_([text5("(\\x. x) a")])]), li_([pre_([text5("(\\x. x x) a")])]), li_([pre_([text5("print b")])]), li_([pre_([text5("(print c) (print d)")])]), li_([pre_([text5("two (print c)")])]), li_([pre_([text5("add two four (print c)")])]), li_([pre_([text5("mult two three (print c)")])]), li_([pre_([text5("exp two three (print c)")])])]), br_, h2_([text5("Notes")]), ul_([li_([text5("Each expression entered into the REPL is evaluated into a normal form and then this is printed. If it is not in a normal form after " + (show(showInt)(maxSteps) + " evaluation steps, evaluation is terminated with an error"))]), li_([text5("Note that the "), printWord, text5(" function prints its argument (after normalizing it) whenever an application of "), printWord, text5(" to an argument is evaluated.")]), li_([text5("There is *nothing* else in the language that is not described above. Everything is either: an anonymous function, a function application or a variable. Definitions simply provide a way to name expressions. This could be eliminated from the language without changing any properties of the language, though it would be much harder to work with.")])])];
   }();
   var historyToHtml = function(st) {
     return intersperse(br_)(map30(text5)(st.history));
@@ -32473,7 +32474,7 @@
     };
   };
   var defsRef = "defsRef";
-  var defaultDefString = /* @__PURE__ */ unlines(["zero := \\f. \\x. x;", "succ := \\n. (\\f. (\\x. (f ((n f))) x));", "add := \\m. \\n. \\f. m f (n f x);", "mult := \\m. \\n. \\f. \\x. m (n f) x;", "exp := \\m. \\n. n m;", "one := succ zero;", "two := succ one;", "three := succ two;", "four := succ three;", "five := succ four;", "six := succ five;"]);
+  var defaultDefString = /* @__PURE__ */ unlines(["zero := \\f. \\x. x;", "succ := \\n. (\\f. (\\x. (f (n f x))));", "add := \\m. \\n. \\f. m f (n f x);", "mult := \\m. \\n. \\f. \\x. m (n f) x;", "exp := \\m. \\n. n m;", "one := succ zero;", "two := succ one;", "three := succ two;", "four := succ three;", "five := succ four;", "six := succ five;"]);
   var initialState = /* @__PURE__ */ function() {
     return {
       input: "",
@@ -32485,11 +32486,11 @@
   }();
   var render = function(dictMonadAff) {
     return function(st) {
-      return div_([h1([class_("toolHeader")])([text5("UTLC Evaluator")]), div2([id2("panels")])([div2([id2("definitionsPanel")])([h2([class_("panelHeader")])([text5("Definitions")]), textarea([id2("definitionsArea"), ref2(defsRef), rows4(10), value13(defaultDefString), onValueInput(UpdateDefString.create)])]), div2([id2("replPanel")])([h2([class_("panelHeader")])([text5("REPL")]), div2([id2("terminal"), ref2(terminalRef), onClick(function(v) {
-        return Focus.value;
-      })])(append8(historyToHtml(st))([div2([class_("line"), id2("line1")])([span3([id2("promptSpan"), class_("prompt")])([text5(prompt)]), input2([id2("replInput"), type_19(InputText.value), class_("input"), onKeyDown(mkAction), ref2(replInputRef), onValueInput(updateInput)])])]))]), div2([id2("instructionsPanel")])([h2([class_("panelHeader")])([text5("Syntax")]), div2([class_("instructionsContent")])(instructions)])]), button([onClick(function(v) {
+      return div_([h1([class_("toolHeader")])([text5("UTLC Evaluator")]), div2([id2("panels")])([button([onClick(function(v) {
         return ReloadDefs.value;
-      })])([text5("Reload")])]);
+      })])([text5("Reload")]), br_, div2([id2("definitionsPanel")])([h2([class_("panelHeader")])([text5("Definitions")]), textarea([id2("definitionsArea"), ref2(defsRef), rows4(10), value13(defaultDefString), onValueInput(UpdateDefString.create)])]), div2([id2("replPanel")])([h2([class_("panelHeader")])([text5("REPL")]), div2([id2("terminal"), ref2(terminalRef), onClick(function(v) {
+        return Focus.value;
+      })])(append8(historyToHtml(st))([div2([class_("line"), id2("line1")])([span3([id2("promptSpan"), class_("prompt")])([text5(prompt)]), input2([id2("replInput"), type_19(InputText.value), class_("input"), onKeyDown(mkAction), ref2(replInputRef), onValueInput(updateInput)])])]))]), div2([id2("instructionsPanel")])([h2([class_("panelHeader")])([text5("Instructions")]), div2([class_("instructionsContent")])(instructions)])])]);
     };
   };
   var replComponent = function(dictMonadAff) {

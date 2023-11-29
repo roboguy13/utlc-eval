@@ -13,7 +13,7 @@ body {
   padding: 25px;
   /* width: 800px; */
   width: 80vw;
-  height: 70vh;
+  height: 95vh;
   border-radius: 8px;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
 }
@@ -70,7 +70,7 @@ textarea {
   margin-top: 0;
   overflow-y: auto;  /* Adds scrolling */
   /* height: 200px; */ /* Sets the initial height */
-  height: 65vh;
+  height: 90vh;
   width: 20vw;
   box-sizing: border-box;
   font-family: monospace, monospace;
@@ -135,7 +135,7 @@ h2 {
   flex-basis: 100%;
   margin-top: 20px; /* Spacing from the above panels */
   width: 100%;                /* Take full width */
-  height: 65vh;
+  height: 90vh;
   box-sizing: border-box;
   margin-top: 0;
 }

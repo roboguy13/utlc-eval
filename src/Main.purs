@@ -75,7 +75,12 @@ render st =
     [ HH.h1 [ HP.class_ (HH.ClassName "toolHeader") ]
             [ HH.text "UTLC Evaluator" ]
     , HH.div [ HP.id "panels" ]
-        [HH.div [ HP.id "definitionsPanel" ]
+        [ HH.button
+            [ HE.onClick \_ -> ReloadDefs
+            ]
+            [ HH.text "Reload" ]
+        , HH.br_
+        , HH.div [ HP.id "definitionsPanel" ]
           [ HH.h2 [ HP.class_ (HH.ClassName "panelHeader") ]
                   [ HH.text "Definitions" ]
           , HH.textarea
@@ -114,16 +119,11 @@ render st =
             ]
         , HH.div [ HP.id "instructionsPanel" ]
                 [ HH.h2 [ HP.class_ (HH.ClassName "panelHeader") ]
-                        [ HH.text "Syntax" ]
+                        [ HH.text "Instructions" ]
                 , HH.div [ HP.class_ (HH.ClassName "instructionsContent") ]
                     instructions
                 ]
         ]
-
-        , HH.button
-            [ HE.onClick \_ -> ReloadDefs
-            ]
-            [ HH.text "Reload" ]
     ]
 
 historyToHtml :: forall w i. ReplState -> Array (HTML w i)
@@ -226,6 +226,19 @@ instructions =
         ]
     ]
   , HH.br_
+  , HH.h2_ [ HH.text "Examples" ]
+  , HH.ul_
+      [ HH.li_ [ HH.pre_ [ HH.text "(\\x. x) a" ] ]
+      , HH.li_ [ HH.pre_ [ HH.text "(\\x. x x) a" ] ]
+      , HH.li_ [ HH.pre_ [ HH.text "print b" ] ]
+      , HH.li_ [ HH.pre_ [ HH.text "(print c) (print d)" ] ]
+      , HH.li_ [ HH.pre_ [ HH.text "two (print c)" ] ]
+      , HH.li_ [ HH.pre_ [ HH.text "add two four (print c)" ] ]
+      , HH.li_ [ HH.pre_ [ HH.text "mult two three (print c)" ] ]
+      , HH.li_ [ HH.pre_ [ HH.text "exp two three (print c)" ] ]
+      ]
+  , HH.br_
+  , HH.h2_ [ HH.text "Notes" ]
   , HH.ul_
       -- [ HH.li_ [ HH.text "Press the 'Reload' button to reload the definitions for use in the REPL." ]
       [ HH.li_ [ HH.text $ "Each expression entered into the REPL is evaluated into a normal form and then this is printed. If it is not in a normal form after " <> show maxSteps <> " evaluation steps, evaluation is terminated with an error" ]
@@ -255,7 +268,7 @@ defaultDefString :: String
 defaultDefString =
   unlines
   [ "zero := \\f. \\x. x;"
-  , "succ := \\n. (\\f. (\\x. (f ((n f))) x));"
+  , "succ := \\n. (\\f. (\\x. (f (n f x))));"
   , "add := \\m. \\n. \\f. m f (n f x);"
   , "mult := \\m. \\n. \\f. \\x. m (n f) x;"
   , "exp := \\m. \\n. n m;"

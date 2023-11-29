@@ -31,7 +31,7 @@ type StepCounter m = StateT Int m
 type StdoutWriter = WriterT (List String)
 
 maxSteps :: Int
-maxSteps = 10000
+maxSteps = 1500
 
 -- TODO: This probably needs a fresh name generator?
 type Eval = StepCounter (StdoutWriter (Either EvalError))
