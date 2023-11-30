@@ -9,13 +9,13 @@ body {
   height: 130vh;
 }
 #panels {
-  background: #fff;
+  /* background: #fff; */
   padding: 25px;
   /* width: 800px; */
   width: 80vw;
   height: 130vh;
   border-radius: 8px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  /* box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); */
 }
 h1, h2 {
   color: #333;
