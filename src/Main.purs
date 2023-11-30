@@ -268,7 +268,7 @@ instructions =
       [ HH.li_ [ HH.text "Each expression entered into the REPL is evaluated into a normal form and then this is printed." ] -- If it is not in a normal form after " <> show maxSteps <> " evaluation steps, evaluation is terminated with an error" ]
       , HH.li_ [ monospace "id", HH.text " is just a name for the identity function. See the definitions panel. The identity function is ", monospace "\\x. x" ]
       , HH.li_ [ HH.text "Note that the ", printWord, HH.text " function prints its argument (after normalizing it) whenever an application of ", printWord, HH.text " to an argument is evaluated. More specifically, when applied to an argument it gives back a function that will print when that function is applied to a function. This whole thing normalizes to the function its applied to. See the examples." ]
-      , HH.li_ [ HH.text "There is *nothing* else in the language that is not described above. Everything is either: an anonymous function, a function application or a variable. Definitions simply provide a way to name expressions. This could be eliminated from the language without changing any properties of the language, though it would be much harder to work with." ]
+      , HH.li_ [ HH.text "There is *nothing* else in the language that is not described above. Everything is either: an anonymous function, a function application, ", monospace "print", HH.text " or a variable. Definitions simply provide a way to name expressions. This could be eliminated from the language without changing any properties of the language, though it would be much harder to work with." ]
       ]
   ]
 
