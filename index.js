@@ -4552,6 +4552,7 @@
   var toEventTarget = unsafeCoerce2;
 
   // output/Web.HTML.Event.EventTypes/index.js
+  var load2 = "load";
   var input = "input";
   var domcontentloaded = "DOMContentLoaded";
 
@@ -7407,6 +7408,7 @@
       return $23(keyHandler($24));
     };
   }();
+  var onLoad = /* @__PURE__ */ handler2(load2);
   var addForeignPropHandler = function(key2) {
     return function(prop4) {
       return function(reader) {
@@ -32029,7 +32031,14 @@
       }
       ;
       if (v1 instanceof App2) {
-        return "(" + (toPythonExpr(v)(v1.value0) + (")(" + (toPythonExpr(v)(v1.value1) + ")")));
+        var showFn = function() {
+          if (v1.value0 instanceof Var) {
+            return toPythonExpr(v)(v1.value0);
+          }
+          ;
+          return "(" + (toPythonExpr(v)(v1.value0) + ")");
+        }();
+        return showFn + ("(" + (toPythonExpr(v)(v1.value1) + ")"));
       }
       ;
       if (v1 instanceof Print) {
@@ -32414,17 +32423,17 @@
   var updateTerminal = function(dictMonadAff) {
     return function(resultMsg) {
       return modify_3(function(st) {
-        var $59 = {};
-        for (var $60 in st) {
-          if ({}.hasOwnProperty.call(st, $60)) {
-            $59[$60] = st[$60];
+        var $60 = {};
+        for (var $61 in st) {
+          if ({}.hasOwnProperty.call(st, $61)) {
+            $60[$61] = st[$61];
           }
           ;
         }
         ;
-        $59.history = append8(st.history)([resultMsg]);
-        $59.message = resultMsg;
-        return $59;
+        $60.history = append8(st.history)([resultMsg]);
+        $60.message = resultMsg;
+        return $60;
       });
     };
   };
@@ -32475,11 +32484,11 @@
             });
           }
           ;
-          throw new Error("Failed pattern match at Main (line 284, column 7 - line 288, column 69): " + [v1.constructor.name]);
+          throw new Error("Failed pattern match at Main (line 285, column 7 - line 289, column 69): " + [v1.constructor.name]);
         });
       }
       ;
-      throw new Error("Failed pattern match at Main (line 273, column 3 - line 288, column 69): " + [v.constructor.name]);
+      throw new Error("Failed pattern match at Main (line 274, column 3 - line 289, column 69): " + [v.constructor.name]);
     };
   };
   var monospace = function(str) {
@@ -32487,8 +32496,8 @@
   };
   var printWord = /* @__PURE__ */ monospace("print");
   var mkAction = function(ev) {
-    var $73 = key(ev) === "Enter";
-    if ($73) {
+    var $74 = key(ev) === "Enter";
+    if ($74) {
       return ExecuteCommand.value;
     }
     ;
@@ -32514,31 +32523,31 @@
       ;
       if (v instanceof UpdateInput) {
         return modify_3(function(st) {
-          var $75 = {};
-          for (var $76 in st) {
-            if ({}.hasOwnProperty.call(st, $76)) {
-              $75[$76] = st[$76];
+          var $76 = {};
+          for (var $77 in st) {
+            if ({}.hasOwnProperty.call(st, $77)) {
+              $76[$77] = st[$77];
             }
             ;
           }
           ;
-          $75.input = v.value0;
-          return $75;
+          $76.input = v.value0;
+          return $76;
         });
       }
       ;
       if (v instanceof UpdateDefString) {
         return modify_3(function(st) {
-          var $79 = {};
-          for (var $80 in st) {
-            if ({}.hasOwnProperty.call(st, $80)) {
-              $79[$80] = st[$80];
+          var $80 = {};
+          for (var $81 in st) {
+            if ({}.hasOwnProperty.call(st, $81)) {
+              $80[$81] = st[$81];
             }
             ;
           }
           ;
-          $79.defsString = v.value0;
-          return $79;
+          $80.defsString = v.value0;
+          return $80;
         });
       }
       ;
@@ -32553,20 +32562,20 @@
           ;
           if (v1 instanceof Right) {
             return modify_3(function(st1) {
-              var $85 = {};
-              for (var $86 in st1) {
-                if ({}.hasOwnProperty.call(st1, $86)) {
-                  $85[$86] = st1[$86];
+              var $86 = {};
+              for (var $87 in st1) {
+                if ({}.hasOwnProperty.call(st1, $87)) {
+                  $86[$87] = st1[$87];
                 }
                 ;
               }
               ;
-              $85.defs = v1.value0;
-              return $85;
+              $86.defs = v1.value0;
+              return $86;
             });
           }
           ;
-          throw new Error("Failed pattern match at Main (line 168, column 5 - line 173, column 44): " + [v1.constructor.name]);
+          throw new Error("Failed pattern match at Main (line 169, column 5 - line 174, column 44): " + [v1.constructor.name]);
         });
       }
       ;
@@ -32574,16 +32583,16 @@
         return bind10(get2)(function(st) {
           return discard6(liftEffect7(log("history = " + show23(st.history))))(function() {
             return discard6(modify_3(function(st1) {
-              var $89 = {};
-              for (var $90 in st1) {
-                if ({}.hasOwnProperty.call(st1, $90)) {
-                  $89[$90] = st1[$90];
+              var $90 = {};
+              for (var $91 in st1) {
+                if ({}.hasOwnProperty.call(st1, $91)) {
+                  $90[$91] = st1[$91];
                 }
                 ;
               }
               ;
-              $89.history = append8(st1.history)([prompt + st1.input]);
-              return $89;
+              $90.history = append8(st1.history)([prompt + st1.input]);
+              return $90;
             }))(function() {
               return discard6(runInput1(st.input))(function() {
                 return refocus1;
@@ -32593,7 +32602,7 @@
         });
       }
       ;
-      throw new Error("Failed pattern match at Main (line 159, column 16 - line 181, column 12): " + [v.constructor.name]);
+      throw new Error("Failed pattern match at Main (line 160, column 16 - line 182, column 12): " + [v.constructor.name]);
     };
   };
   var defsRef = "defsRef";
@@ -32612,6 +32621,8 @@
       return div_([h1([class_("toolHeader")])([text5("UTLC Evaluator")]), div2([id2("panels")])([div2([id2("definitionsPanel")])([h2([class_("panelHeader")])([text5("Definitions")]), textarea([id2("definitionsArea"), ref2(defsRef), rows4(10), value13(defaultDefString), onValueInput(UpdateDefString.create)]), button([onClick(function(v) {
         return ReloadDefs.value;
       }), id2("reloadButton")])([text5("Reload")])]), div2([id2("replPanel")])([h2([class_("panelHeader")])([text5("REPL")]), div2([id2("terminal"), ref2(terminalRef)])(append8(historyToHtml(st))([div2([class_("line"), id2("line1")])([span3([id2("promptSpan"), class_("prompt")])([text5(prompt)]), input2([id2("replInput"), type_19(InputText.value), class_("input"), onKeyDown(mkAction), ref2(replInputRef), onValueInput(updateInput), onClick(function(v) {
+        return Focus.value;
+      }), onLoad(function(v) {
         return Focus.value;
       })])])]))]), div2([id2("instructionsPanel")])([h2([class_("panelHeader")])([text5("Instructions")]), div2([class_("instructionsContent")])(instructions)])])]);
     };

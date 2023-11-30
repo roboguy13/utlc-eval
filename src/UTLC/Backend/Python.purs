@@ -20,7 +20,13 @@ toPythonExpr env (Var x) =
 toPythonExpr env (Lam x body) =
   "lambda " <> toPythonVar x <> ": " <> toPythonExpr (Cons x env) body
 toPythonExpr env (App x y) =
-  "(" <> toPythonExpr env x <> ")(" <> toPythonExpr env y <> ")"
+  showFn <> "(" <> toPythonExpr env y <> ")"
+  where
+    showFn =
+      case x of
+          Var _ -> -- Don't need parentheses here
+            toPythonExpr env x
+          _ -> "(" <> toPythonExpr env x <> ")"
 toPythonExpr _env Print = "printImpl"
 
 toPythonDef :: List Name -> NamedDef -> String

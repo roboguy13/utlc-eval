@@ -127,6 +127,7 @@ render st =
                                , HP.ref replInputRef
                                , HE.onValueInput updateInput
                                , HE.onClick (\_ -> Focus)
+                               , HE.onLoad (\_ -> Focus)
                                ]
                     ]
                 ])
