@@ -6,16 +6,20 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 130vh;
+  height: fit-content;
 }
 #panels {
-  /* background: #fff; */
+  background: #fff;
   padding: 25px;
   /* width: 800px; */
+
+  /* width: fit-content; */
+  height: fit-content;
   width: 80vw;
-  height: 130vh;
+  /* height: 130vh; */
+
   border-radius: 8px;
-  /* box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); */
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
 }
 h1, h2 {
   color: #333;
@@ -135,7 +139,7 @@ h2 {
   flex-basis: 100%;
   margin-top: 20px; /* Spacing from the above panels */
   width: 100%;                /* Take full width */
-  height: 90vh;
+  height: fit-content;
   box-sizing: border-box;
   margin-top: 0;
 }
